@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>御图网 - 图片资源导航网站</title>
+    <meta name="keywords" content="御图网,御图网APP,高清图片,4K图片,动漫图片,电脑图片">
+    <meta name="description" content="御图网图片网站，为你提供超清图片下载，包括动漫、电脑、美女、动态等多种类型。">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.1/feather.min.js"></script>
+    <link rel="icon" href="https://img.meituan.net/content/773fd3dec2050c9f11f149b1a70909bf1083680.png"
+        type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #090909;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 20px 15px;
+        }
+
+        #background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .search-container {
+            margin: 1rem 0;
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 40px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .tag-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0.5rem 0 1.5rem;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .main-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .sub-tags-container {
+            width: 100%;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease;
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .sub-tags-container.show {
+            max-height: 200px;
+            opacity: 1;
+        }
+
+        .sub-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 0 0 15px;
+            width: 100%;
+        }
+
+        .tag {
+            padding: 8px 18px;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .tag:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .tag.sub {
+            padding: 6px 14px;
+            font-size: 13px;
+            height: 32px;
+            background-color: rgba(255, 255, 255, 0.07);
+            opacity: 0.9;
+        }
+
+        .tag.sub:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .tag.active {
+            background-color: #ffd700;
+            color: #090909;
+            font-weight: 600;
+            height: 36px;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .tag.sub.active {
+            height: 32px;
+        }
+
+        .button-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .glowing-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glowing-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .glowing-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .glowing-button:hover::before {
+            left: 100%;
+        }
+
+        .tooltip-card {
+            position: absolute;
+            z-index: 1000;
+            background: rgba(15, 15, 15, 0.95);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            width: 240px;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .tooltip-card.show {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+
+        .tooltip-card h3 {
+            color: #ffd700;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .tooltip-card p {
+            color: #ddd;
+        }
+
+        @media (max-width: 1024px) {
+            .button-container {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .button-container {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+
+            .tag {
+                padding: 6px 12px;
+                font-size: 12px;
+                height: 32px;
+            }
+
+            .tag.sub {
+                padding: 4px 10px;
+                font-size: 11px;
+                height: 28px;
+            }
+
+            .tag.active {
+                height: 32px;
+            }
+
+            .tag.sub.active {
+                height: 28px;
+            }
+
+            .search-input {
+                padding: 10px 35px;
+                font-size: 14px;
+            }
+
+            .search-icon {
+                left: 12px;
+            }
+
+            .sub-tags {
+                padding-left: 10px;
+            }
+
+            .tooltip-card {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .button-container {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .logo {
+                font-size: 2.5rem !important;
+            }
+
+            .slogan {
+                font-size: 1.2rem !important;
+            }
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 1rem 0 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .hero {
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: lowercase;
+            letter-spacing: -1px;
+        }
+
+        .logo a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .slogan {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #AAA;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .description {
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+            color: #888;
+        }
+
+        .coming-soon {
+            color: #ffd700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .filter-count {
+            margin: 0.5rem 0 1.5rem;
+            color: #ffd700;
+            font-size: 1.1rem;
+        }
+
+        .footer {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin: 3rem auto 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-text {
+            color: #888;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .footer-text a {
+            color: #888;
+            text-decoration: none;
+        }
+
+        .footer-text a:hover {
+            color: #ffd700;
+        }
+
+        .footer-slogan {
+            margin-top: 1rem;
+            color: #AAA;
+            font-style: italic;
+        }
+    </style>
+
+<!-- 统计 -->
+ <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+<script>LA.init({id:"KyPW2nxzl6xeGcLC",ck:"KyPW2nxzl6xeGcLC"})</script>
+
+
+</head>
+
+<body>
+    <canvas id="background-animation" aria-hidden="true"></canvas>
+    <div class="content">
+        <div class="hero">
+            <h1 class="logo">
+                <a href="#" title="御图网 - 资源导航网站">御图网</a>
+            </h1>
+            <p class="coming-soon">精选全网优质壁纸和图片资源下载</p>
+            <!-- <p class="slogan">精选高清壁纸，美化你的数字生活</p> -->
+
+            <!-- 搜索框 -->
+            <div class="search-container">
+                <label for="search-input" class="search-icon" aria-hidden="true">
+                    <i data-feather="search"></i>
+                </label>
+                <input type="text" id="search-input" class="search-input" placeholder="搜索资源...">
+            </div>
+
+            <!-- 标签筛选容器 - 包含一级和二级标签 -->
+            <div class="tag-container" role="group" aria-label="壁纸分类筛选">
+                <!-- 一级标签 -->
+                <div class="main-tags">
+                    <span class="tag active" data-tag="all" data-main-tag="all" role="button" tabindex="0"
+                        aria-selected="true">全部</span>
+                    <span class="tag" data-tag="tuijian" data-main-tag="tuijian" role="button" tabindex="0"
+                        aria-selected="false">综合推荐</span>
+                    <span class="tag" data-tag="dongmanbizhi" data-main-tag="dongmanbizhi" role="button" tabindex="0"
+                        aria-selected="false">动漫壁纸</span>
+                    <span class="tag" data-tag="meinvxiezhen" data-main-tag="meinvxiezhen" role="button" tabindex="0"
+                        aria-selected="false">美女写真</span>
+                    <span class="tag" data-tag="shoujibizhi" data-main-tag="shoujibizhi" role="button" tabindex="0"
+                        aria-selected="false">手机壁纸</span>
+                    <span class="tag" data-tag="diannaobizhi" data-main-tag="diannaobizhi" role="button" tabindex="0"
+                        aria-selected="false">电脑壁纸</span>
+                    <span class="tag" data-tag="bizhiruanjian" data-main-tag="bizhiruanjian" role="button" tabindex="0"
+                        aria-selected="false">壁纸软件</span>
+                    <span class="tag" data-tag="aihuihua" data-main-tag="aihuihua" role="button" tabindex="0"
+                        aria-selected="false">AI绘画</span>
+                </div>
+
+                <!-- 二级标签容器 -->
+                <div class="sub-tags-container" data-for="tuijian">
+                    <div class="sub-tags">
+                        <!-- <span class="tag sub" data-tag="tuijian-daohang" role="button" tabindex="0" aria-selected="false">导航</span>
+                        <span class="tag sub" data-tag="tuijian-jiaoliu" role="button" tabindex="0" aria-selected="false">交流</span> -->
+                    </div>
+                </div>
+
+
+
+
+
+
+
+            </div>
+
+            <!-- 筛选结果计数 -->
+            <div class="filter-count" id="filter-count" aria-live="polite">找到 <span id="result-count">0</span> 个结果</div>
+
+            <!-- 按钮容器 -->
+            <div class="button-container" id="button-container" aria-label="资源列表">
+                <a href="https://pan.quark.cn/s/e19c3ed81f64" class="glowing-button" data-tag="tuijian-daohang"
+                    data-description="御图网最新软件">御图网APP</a>
+                <a href="https://keyushe.com" class="glowing-button" data-tag="tuijian-daohang"
+                    data-description="资源导航">科鱼社</a>
+
+                <a href="https://www.yuque.com/r/xbxbot/yutu/index/desc" class="glowing-button"
+                    data-tag="tuijian-daohang" data-description="御图网最新软件">最近更新（手机端）</a>
+                <a href="https://www.yuque.com/xbxbot/yutu" class="glowing-button" data-tag="tuijian-daohang"
+                    data-description="御图网最新软件">最近更新（电脑端）</a>
+
+                <a href="https://keyushe.com/qun.html" class="glowing-button" data-tag="tuijian-jiaoliu"
+                    data-description="微信资源群">免费资源群</a>
+
+                <!-- 综合推荐  -->
+                <a href="https://pan.quark.cn/s/4634f9ceae13" class="glowing-button" data-tag="tuijian"
+                    data-description="2023-2025年最热壁纸资源，包含动态+静态双类型">桌面壁纸 39.7GB</a>
+                <a href="https://pan.quark.cn/s/352b957b0cf4" class="glowing-button" data-tag="tuijian"
+                    data-description="34.9GB 4K超清壁纸资源，画质细腻清晰，覆盖多种风格">4k超清壁纸 34.9GB</a>
+                <a href="https://pan.quark.cn/s/5c2d9b22a981" class="glowing-button" data-tag="tuijian"
+                    data-description="超全壁纸合集，总计10万张">10 万张壁纸合集</a>
+
+                <a href="https://haowallpaper.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="提供丰富4K和8K高清壁纸">哲风壁纸</a>
+                <a href="https://www.bizhi66.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="每天只能下载一张原图">壁纸爱好者</a>
+                <a href="http://www.soutushenqi.com/home/" class="glowing-button" data-tag="tuijian"
+                    data-description="聚合多平台壁纸资源，支持按关键词精准搜索">搜图神器</a>
+                <a href="https://huaban.com/discovery" class="glowing-button" data-tag="tuijian"
+                    data-description="包含大量用户分享的壁纸灵感，支持收藏和分类整理">花瓣网</a>
+                <a href="https://pic.netbian.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="提供风景、动漫、人物等多类高清壁纸，免费下载">彼岸图网</a>
+                <a href="https://hdqwalls.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="专注高分辨率壁纸，涵盖影视、游戏、自然等主题">hdqwalls</a>
+                <a href="https://wallhalla.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="提供4K、8K超高清壁纸，支持按设备尺寸适配">Wallhalla</a>
+                <a href="https://wallhere.com/zh/tag/245" class="glowing-button" data-tag="tuijian"
+                    data-description="国际化壁纸平台，分类细致，支持多语言切换">WallHere</a>
+                <a href="https://alphacoders.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="以动漫、游戏壁纸为主，支持按分辨率和主题筛选">Alpha Coders</a>
+                <a href="https://desk.3gbizhi.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="涵盖手机、电脑壁纸，支持按屏幕尺寸适配">3g壁纸</a>
+                <a href="https://10wallpaper.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="提供各类主题壁纸，每日更新，支持高清下载">10wallpaper.com</a>
+                <a href="https://wallpaperswide.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="壁纸分辨率选择丰富，支持按屏幕比例筛选">WallpapersWide</a>
+                <a href="http://www.win4000.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="包含电脑桌面、手机壁纸，分类涵盖风景、明星等">美桌网</a>
+                <a href="https://wallpaperscraft.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="提供按主题和分辨率筛选的壁纸，支持免费下载">WallpapersCraft</a>
+                <a href="https://www.yeitu.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="主打全景和高清风景壁纸，涵盖自然、城市等场景">亿图全景图库</a>
+                <a href="https://www.720yun.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="专注VR全景内容，提供全景视觉资源">720云VR全景</a>
+                <a href="https://www.airpano.com/" class="glowing-button" data-tag="tuijian"
+                    data-description="提供高品质全景照片资源，覆盖多类场景">全景照片</a>
+
+                <!-- 动漫壁纸 -->
+
+                <a href="https://pan.quark.cn/s/8a94d193a4ff" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="932张动漫壁纸夸克网盘资源">动漫壁纸932张</a>
+                <a href="https://pan.quark.cn/s/4af6012b5e2e" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="动漫壁纸 1200张合集，包含热门二次元角色、风景、插画等高清壁纸资源">动漫壁纸 1200张</a>
+                <a href="https://pan.quark.cn/s/cfcfee89079a" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="电脑壁纸动漫合集，专为桌面电脑设计的动漫高清壁纸资源">电脑壁纸动漫1076张</a>
+                <a href="https://pan.quark.cn/s/87159919d93e" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="动漫角色壁纸合集，包含热门动画角色高清桌面壁纸">动漫角色壁纸1300张</a>
+                <a href="https://pan.quark.cn/s/cf7f906a9d2c" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="207张二次元壁纸合集，风格鲜明，涵盖动漫角色、场景，二次元爱好者桌面必备">二次元壁纸207张</a>
+
+                <a href="https://pan.quark.cn/s/e1e5726e35ec" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="476张动漫壁纸，覆盖热门番剧与经典角色，高清画质，日常更换不重样">动漫壁纸 476张</a>
+
+                <a href="https://pan.baidu.com/s/1PSxbx6YOvEqL4bWtCrqBWQ?pwd=1234" class="glowing-button"
+                    data-tag="dongmanbizhi" data-description="812MB动漫壁纸资源，提取码1234，风格丰富，快速获取二次元桌面素材">动漫壁纸812MB</a>
+                <a href="https://pan.quark.cn/s/26bba35b9bb7" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="动漫壁纸合集，汇聚多种风格与主题，数量丰富，满足二次元桌面美化多元需求">动漫壁纸合集</a>
+
+                <a href="https://pan.quark.cn/s/fd4c969fb3a9" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="崩坏星穹铁道花火主题壁纸，还原角色可爱形象，画风清新，游戏玩家专属">花火-崩铁</a>
+                <a href="https://pan.quark.cn/s/237c8066cd70" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="fate系列动漫壁纸，涵盖经典角色与名场面，奇幻风格鲜明，粉丝必备桌面素材">fate系列</a>
+
+
+
+                <a href="https://pan.quark.cn/s/fd13aeb7dca4" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="2400张原神壁纸，涵盖全角色与游戏场景，画风唯美，原神玩家桌面素材库">原神壁纸 2400张</a>
+
+                <a href="https://pan.quark.cn/s/08ea2c6970a0" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="原神刻晴水墨风壁纸，融合古风与游戏元素，画风独特，刻晴粉丝专属">水墨风刻晴</a>
+                <a href="https://pan.quark.cn/s/b2ecded3a0db" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="原神古风花嫁主题壁纸，角色造型华丽，画风浪漫，满足粉丝个性化审美">原神古风花嫁</a>
+
+
+
+                <a href="https://pan.quark.cn/s/d83eb9ef7d76" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="樱岛麻衣主题壁纸，还原《青春猪头少年》经典角色，画风清新，粉丝专属">樱岛麻衣壁纸</a>
+                <a href="https://www.pixiv.net/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="日本知名原创插画交流平台，全球二次元创作者核心聚集地，支持作品投稿">pixiv</a>
+                <a href="https://pixiviz.xyz/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="Pixiv 插画便捷浏览工具，支持快速查看二次元插画作品，优化访问体验">Pixiviz</a>
+                <a href="https://www.pixivs.cn/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="Pixiv 插画辅助浏览平台，支持作品检索、分类查看，便捷获取二次元创作内容">PixivNow</a>
+                <a href="https://www.pixivision.net/zh/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="Pixiv 官方视觉内容平台，分享插画创作解析、二次元文化科普及主题策划内容">pixivision</a>
+                <a href="https://anime-pictures.net" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="专注动漫主题图片分享，涵盖二次元插画、动漫截图、角色设定图等资源">Anime pictures</a>
+                <a href="https://dimtown.com/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="次元文化社区型平台，提供二次元插画、壁纸分享，兼具用户互动功能">次元小镇</a>
+                <a href="https://www.chnci.cc/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="探索无尽二次元之美，聚合二次元插画、壁纸及同人作品，满足视觉内容需求">Chnci</a>
+                <a href="https://www.someacg.top/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="ACG 壁纸精选平台，涵盖动漫、游戏、同人等主题壁纸，支持高清下载">SomeACG</a>
+
+                <a href="https://mikagogo.com/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="专注插画资源整合，汇聚二次元、治愈系、国风等多风格插画作品">米卡插画</a>
+                <a href="https://www.vilipix.com/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="多元化插画分享社区，涵盖二次元原创、同人插画及商业插画作品">插画世界</a>
+                <a href="https://moetu.club/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="萌系二次元图片专属平台，分享萌系插画、Q 版角色壁纸及表情包素材">萌图社</a>
+                <a href="https://www.huashi6.com/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="二次元创作与交流平台，汇聚插画、设计、同人作品，支持创作者展示">触站</a>
+                <a href="https://e-shuushuu.net/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="经典动漫图片分享平台，分类清晰，涵盖插画、动漫截图、官方设定图">shuushuu</a>
+                <a href="https://www.zerochan.net/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="全球知名动漫插画平台，收录海量二次元插画、角色图片，支持标签检索">Zerochan</a>
+                <a href="https://wallspic.com/cn" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="综合壁纸资源平台，含二次元主题壁纸专区，支持高清、4K 分辨率下载">Wallspic</a>
+                <a href="https://www.byzhihuo.com/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="ACG 资源聚合平台，提供二次元插画、壁纸及动漫资讯，聚焦核心视觉内容">不移之火</a>
+                <a href="https://www.element3ds.com/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="CG 设计与插画社区，含二次元插画板块，兼顾专业设计资源与大众视觉需求">微元素</a>
+                <a href="https://pixivic.com/?VNK=f11d0d22" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="Pixiv 插画合集展示平台，精选优质二次元作品，支持按主题、画师分类浏览">Pixiv Illustration Collection</a>
+                <a href="https://www.avogado6.com/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="日本知名插画师アボガド 6 个人官网，展示其暗黑治愈风原创插画作品">アボガド 6</a>
+                <a href="https://bobopic.com/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="综合图片分享平台，设二次元插画、壁纸专区，涵盖热门动漫、游戏相关内容">BoBoPic</a>
+                <a href="https://www.cgwallpapers.com/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="CG 主题壁纸平台，含动漫、游戏二次元风格 CG 壁纸，侧重高品质视觉呈现">CGWallpapers</a>
+                <a href="https://www.gamewallpapers.com/" class="glowing-button" data-tag="dongmanbizhi"
+                    data-description="游戏主题壁纸专属平台，涵盖二次元游戏角色、场景壁纸，支持多设备适配">GameWallpapers</a>
+
+
+
+                <!-- 美女写真 -->
+                <a href="https://pan.baidu.com/s/1k0ClFnkJXe5XnI8LGqjrsA?pwd=1234" class="glowing-button"
+                    data-tag="meinvxiezhen" data-description="电脑美女壁纸350张，高清写真桌面素材">电脑美女壁纸350张</a>
+                <a href="https://pan.quark.cn/s/1ba4fe4d7141" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="电脑美女主题壁纸，共3000张">电脑壁纸美女1000张</a>
+                <a href="https://pan.quark.cn/s/30798c8a3ac9" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="97张精选美女电脑壁纸，每款都经过筛选，画质高清，风格精致，适配电脑桌面">电脑壁纸美女119张</a>
+                <a href="https://pan.quark.cn/s/01623a5dca0c" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="48GB大容量wallpaper美女壁纸，涵盖多种风格，高清动态+静态可选，满足重度美化需求">wallpaper美女壁纸 48G</a>
+                <a href="https://pan.quark.cn/s/1c2b0ed30c3d" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="迪丽热巴主题电脑壁纸，高清画质还原明星颜值，粉丝专属桌面美化素材">迪丽热巴 电脑壁纸</a>
+                <a href="https://pan.quark.cn/s/5a0f30f3e35b" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="377张美女图片珍藏合集，风格多样，画质精美，满足颜值向收藏与桌面使用需求">美女图片珍藏423张</a>
+                <a href="https://pan.quark.cn/s/f5af23022c33" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="高画质美女街拍壁纸，共3000张">美女街拍壁纸</a>
+                <a href="https://pan.quark.cn/s/ed5bc3baf77d" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="黑白丝小姐姐主题照片集">黑白丝小姐姐照片集</a>
+                <a href="https://pan.quark.cn/s/7223425b32ed" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="美女主题视频合集，共2602部">美女视频合集</a>
+                <a href="https://pan.quark.cn/s/77914b833976" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="中国女主播热舞视频，共9000部">女主播热舞视频</a>
+                <a href="https://pan.quark.cn/s/3ecc8a8dde9b" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="S身材美女短视频合集，共99部">99 部 S 身材美女视频</a>
+                <a href="https://pan.quark.cn/s/ed5bc3baf77d" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="黑白丝小姐姐照片集，风格性感俏皮，画质清晰，满足个性化收藏需求">黑白丝小姐姐照片集</a>
+
+                <a href="https://pan.quark.cn/s/b313323155a6" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="黑白丝小姐姐照片集，风格性感俏皮，画质清晰，满足个性化收藏需求">美女照片黑丝集合</a>
+
+
+                <a href="https://pan.quark.cn/s/4df9e6c239de" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="4K超清美女电脑壁纸，画质细腻，细节丰富，为电脑桌面带来影院级视觉享受">4k美女电脑壁纸</a>
+
+                <a href="https://pan.quark.cn/s/8d09c9c63f75" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="渣男风格壁纸，个性独特，色调与设计感鲜明，适合追求小众潮流的用户">渣男壁纸334张</a>
+
+                <a href="https://pan.quark.cn/s/38b9230e76a0" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="淘宝买家秀真人实拍图片，真实穿搭参考，适合电商运营、时尚搭配借鉴">淘宝买家秀-真人实拍</a>
+
+
+                <a href="https://pan.quark.cn/s/7223425b32ed" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="美女视频合集，内容丰富，画质清晰，适合休闲观赏与收藏">美女视频</a>
+
+                <a href="https://pan.quark.cn/s/377413bcb4d8" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="500部短视频美女舞蹈合集，节奏明快，舞姿优美，适合休闲观赏与素材借鉴">500部短视频美女舞蹈</a>
+                <a href="https://pan.quark.cn/s/77914b833976" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="中国女主播热舞视频合集，风格多样，氛围热烈，适合喜欢舞蹈与直播文化的用户">【中国女主播热舞】</a>
+
+                <a href="https://pan.quark.cn/s/4939062ebb0d" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="美女主播视频合集，涵盖多种直播片段与专属内容，满足粉丝观赏需求">美女主播视频</a>
+                <a href="https://pan.quark.cn/s/3dbe9c16a97b" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="手机美女主题壁纸，共2000张">手机美女壁纸2000张</a>
+                <a href="https://pan.quark.cn/s/93d88c2b33bd" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="222张手机美女壁纸，风格多样，适配各类手机屏幕，日常更换不重样">手机美女壁纸222张</a>
+
+                <a href="https://pan.quark.cn/s/f0ce31cd91cd" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="495张手机美女壁纸，精选高品质素材，画面精美，适配手机桌面日常美化">手机美女壁纸495张</a>
+                <a href="https://pan.baidu.com/s/1I44W1JdlVQpRNDcZ6yqNWA?pwd=3hr4" class="glowing-button"
+                    data-tag="meinvxiezhen" data-description="美女写真图集高清资源">美女写真图集</a>
+                <a href="https://pan.xunlei.com/s/VOTMizoWs8Zfa2gq9_f6E0gBA1?pwd=trqs#" class="glowing-button"
+                    data-tag="meinvxiezhen" data-description="陈都灵主题电脑壁纸，提取码trqs，高清画质，展现明星颜值与气质，粉丝专属">陈都灵 电脑壁纸</a>
+                <a href="https://pan.xunlei.com/s/VOOHE4tDrot0Lpl1JZzioP8aA1?pwd=np4a#" class="glowing-button"
+                    data-tag="meinvxiezhen" data-description="鞠婧祎主题电脑壁纸，提取码np4a，高清画质，展现明星魅力，粉丝专属桌面素材">鞠婧祎 电脑壁纸</a>
+
+
+                <a href="https://www.pandadiu.com/" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="专注Cosplay内容分享与交流的平台">Cosplay联盟</a>
+                <a href="https://www.cosz.com/" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="提供资讯、插画、cos相关内容的平台">C站</a>
+                <a href="https://a2cy.com/" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="二次元相关内容分享与交流平台">爱二次元</a>
+                <a href="https://www.lunai.top/" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="需开通会员使用的次元相关平台">鹿奈次元</a>
+                <a href="http://ciyuandao.com/" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="次元文化交流与资源分享平台">次元岛</a>
+                <a href="https://www.jdlingyu.com/" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="二次元及兴趣向内容分享平台">绝对领域</a>
+                <a href="https://m.tuiimg.com/" class="glowing-button" data-tag="meinvxiezhen"
+                    data-description="图片资源分享与浏览平台">推图网</a>
+
+
+
+                <!-- 手机壁纸  -->
+                <a href="https://pan.quark.cn/s/4d6e7acf4c0c" class="glowing-button" data-tag="shoujibizhi"
+                    data-description="手机动态壁纸，1000张/9.2G">手机动态壁纸</a>
+                <a href="https://pan.baidu.com/s/1MVCMvj3hl6lx_qhU8klwtQ?pwd=1234" class="glowing-button"
+                    data-tag="shoujibizhi" data-description="持续更新的手机动态壁纸资源">手机动态壁纸（更新中）</a>
+                <a href="https://pan.quark.cn/s/39e067b20e5b" class="glowing-button" data-tag="shoujibizhi"
+                    data-description="手机风景主题壁纸合集">手机壁纸 风景</a>
+                <a href="https://pan.quark.cn/s/29881a33ff4f" class="glowing-button" data-tag="shoujibizhi"
+                    data-description="">手机壁纸第1期</a>
+                <a href="https://pan.quark.cn/s/bf4f9910de2d" class="glowing-button" data-tag="shoujibizhi"
+                    data-description="手机壁纸第2期夸克网盘资源">手机壁纸第2期</a>
+                <a href="https://pan.quark.cn/s/5111f6e37ff8" class="glowing-button" data-tag="shoujibizhi"
+                    data-description="">手机壁纸第3期</a>
+
+                <a href="https://pan.quark.cn/s/80c9f75f8fc8" class="glowing-button" data-tag="shoujibizhi"
+                    data-description="手机动态壁纸第1期夸克网盘资源">手机动态壁纸第1-3期</a>
+
+                <a href="https://pan.baidu.com/s/1Xp4PsWQV-_OI9mqal64T5Q?pwd=1234" class="glowing-button"
+                    data-tag="shoujibizhi" data-description="442MB手机壁纸资源，风格多样，适配各类手机屏幕，提取码1234，快速获取桌面美化素材">手机壁纸442MB</a>
+
+                <a href="https://pan.quark.cn/s/e67bd863fe24" class="glowing-button" data-tag="shoujibizhi"
+                    data-description="手机全面屏专属壁纸，适配全屏显示，无黑边，覆盖不同风格，提升桌面视觉完整性">手机全面屏壁纸</a>
+
+                <a href="https://pan.quark.cn/s/39e067b20e5b" class="glowing-button" data-tag="shoujibizhi"
+                    data-description="专注风景主题手机壁纸，包含自然山水、城市风光等场景，画面清新治愈，适配各类手机">手机壁纸 风景</a>
+
+                <!-- 电脑壁纸  -->
+                <a href="https://pan.quark.cn/s/9e2048675d8d" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="1060张动漫电脑壁纸合集，涵盖热门番剧与经典角色，高清画质，日常更换不重样">电脑壁纸动漫1060张</a>
+                <a href="https://pan.quark.cn/s/21dc2aab8dcf" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="电脑动态壁纸，共650张">电脑动态壁纸650张</a>
+
+                <a href="https://pan.quark.cn/s/bd568b89f356" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="电脑场景主题壁纸合集">电脑壁纸场景</a>
+                <a href="https://pan.quark.cn/s/8d30ea04c291" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="电脑壁纸第1期夸克网盘资源，原图高清无水印，风格多样适配电脑屏幕，点击链接即可获取，满足桌面美化基础需求">电脑壁纸第1期</a>
+                <a href="https://pan.quark.cn/s/0a699684d98f" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="电脑动态壁纸合集，风格多样，特效流畅，为电脑桌面增添动感与个性">电脑动态壁纸</a>
+
+                <a href="https://pan.quark.cn/s/d7eee8a3e2bc" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="272张电脑动态壁纸合集，动态效果丰富，覆盖动漫、风景、科技等多风格">电脑动态壁纸272张</a>
+
+
+                <a href="https://pan.quark.cn/s/56fcf7f09da1" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="597张动漫类电脑壁纸夸克网盘资源">电脑壁纸动漫597张</a>
+
+
+                <a href="https://pan.quark.cn/s/e4db3fb0ccd1" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="明日方舟主题电脑动态壁纸33张，总大小2.91GB，还原游戏经典角色与场景，方舟玩家必备">明日方舟电脑壁纸</a>
+                <a href="https://pan.quark.cn/s/7da8bfeb29b6" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="场景类电脑壁纸，包含自然景观、城市建筑、科幻场景等，氛围感拉满，适配电脑桌面">电脑壁纸（场景类）</a>
+                <a href="https://pan.quark.cn/s/b720d288ae2f" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="wlop鬼刀专属电脑壁纸，还原插画师唯美画风，奇幻场景与细腻笔触，艺术感十足">wlop鬼刀壁纸</a>
+
+
+                <a href="https://pan.quark.cn/s/1e2fe580daea" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="暗黑系电脑壁纸，风格神秘酷炫，色调沉稳，适合喜欢个性小众风格的用户">电脑壁纸 暗黑系</a>
+                <a href="https://pan.quark.cn/s/540c407c0035" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="美女主题电脑壁纸，涵盖多种风格，画面高清精美，满足颜值向桌面美化需求">电脑壁纸 美女</a>
+
+                <a href="https://pan.quark.cn/s/c524370fe763" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="4K/1080P高清电脑壁纸，画质细腻清晰，细节丰富，为电脑桌面带来影院级视觉体验">4K 壁纸图片 1080P</a>
+                <a href="https://pan.quark.cn/s/69f8782dfc96" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="320张动漫电脑壁纸，涵盖热门番剧、经典角色，二次元爱好者桌面必备素材">电脑壁纸动漫330张</a>
+
+
+                <a href="https://pan.quark.cn/s/43ad58892b57" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="iPad专属纯欲风壁纸，风格温柔治愈，适配iPad屏幕，提升平板视觉体验">𝙞𝙋𝙖𝙙壁纸 纯欲</a>
+
+
+
+
+                <a href="https://pan.quark.cn/s/623826cd863a" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="动漫主题电脑壁纸合集，包含热门动漫角色与场景，二次元风格鲜明，粉丝必备">电脑壁纸 动漫</a>
+
+
+
+                <a href="https://pan.quark.cn/s/3a8fef581146" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="291张动漫电脑壁纸，精选热门番剧素材，画面精美，适配不同电脑屏幕">电脑壁纸 动漫 291张</a>
+                <a href="https://pan.quark.cn/s/899be947c659" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="259张动漫电脑壁纸，涵盖经典与新番，风格多样，满足二次元爱好者的桌面需求">电脑壁纸 动漫 259张</a>
+
+                <a href="https://pan.quark.cn/s/a6f23022553e" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="15GB大容量动漫电脑壁纸，高清画质，包含海量角色与场景，二次元桌面素材库">电脑壁纸 动漫 15G</a>
+                <a href="https://pan.quark.cn/s/946d445ab47e" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="电脑壁纸合集，风格多样，涵盖风景、动漫、美女等多种主题，满足不同审美需求">电脑壁纸32.5G</a>
+
+
+                <a href="https://pan.quark.cn/s/27f75ce4fab1" class="glowing-button" data-tag="diannaobizhi"
+                    data-description="原神主题电脑壁纸78张，还原游戏角色与场景，画风唯美，原神玩家桌面必备">电脑壁纸原神 78张</a>
+                <a href="https://pan.xunlei.com/s/VOU99x3o8VLilF5DhvMQe80SA1?pwd=gq7q#" class="glowing-button"
+                    data-tag="diannaobizhi" data-description="原神魈专属电脑壁纸，提取码gq7q，还原角色帅气形象，粉丝专属桌面素材">原神魈 电脑壁纸</a>
+                <a href="https://pan.xunlei.com/s/VOUFepx-n8LOPZuNBqcQ7_KTA1?pwd=m46m#" class="glowing-button"
+                    data-tag="diannaobizhi" data-description="绘梨衣主题电脑壁纸，提取码m46m，画面唯美动人，贴合角色气质，粉丝必备">绘梨衣 电脑壁纸</a>
+                <a href="https://pan.xunlei.com/s/VORdlNUVQUKtXVzBBbcrWT8FA1?pwd=vv3t#" class="glowing-button"
+                    data-tag="diannaobizhi" data-description="三国杀主题电脑壁纸，提取码vv3t，还原游戏角色与卡牌风格，三国杀玩家桌面必备">三国杀 电脑壁纸</a>
+
+
+
+
+                <!-- 壁纸软件 -->
+                <a href="https://pan.quark.cn/s/7cbbd0fd550a" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="多款壁纸软件合集资源">手机壁纸软件</a>
+                <a href="https://pan.quark.cn/s/607ce01924d1" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="多款壁纸软件合集资源">电脑壁纸软件</a>
+
+                <a href="https://pan.quark.cn/s/828a184ddfe3" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="桌面美化工具压缩包">桌面美化工具</a>
+                <a href="https://pan.quark.cn/s/8696c6d400ba" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="视频壁纸工具压缩包">VideoWallpaper</a>
+                <a href="https://pan.quark.cn/s/5e5dbf0d6a58" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="BitDock桌面工具安装程序">BitDock安装版</a>
+                <a href="https://pan.quark.cn/s/7bfd3cf45e80" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="桌面及手机壁纸设置软件和配套教程">壁纸设置软件教程</a>
+                <a href="https://pan.quark.cn/s/42e2ebfea320" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="灵动桌面相关工具资源">灵动桌面</a>
+                <a href="https://pan.quark.cn/s/1831d12fd9e3" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="壁纸引擎软件及壁纸资源，长期更新">Wallpaper Engine离线版</a>
+                <a href="https://pan.quark.cn/s/1d7c60a77a0b" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="pxvr安卓端安装包">pxvr安装包</a>
+                <a href="https://pan.quark.cn/s/8ec5a9542929" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="民萌壁纸安卓端安装包">民萌壁纸</a>
+                <a href="https://pan.quark.cn/s/d46770d30e85" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="全民壁纸相关工具资源">全民壁纸</a>
+                <a href="https://pan.quark.cn/s/1f24ab5e672b" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="元气桌面壁纸相关工具资源">元气桌面壁纸</a>
+                <a href="https://pan.quark.cn/s/59dafef776ca" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="壁纸喵1.0.83版本安卓安装包">壁纸喵</a>
+                <a href="https://pan.quark.cn/s/2d12ca3ca8be" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="Walli 4K壁纸相关工具资源">Walli 4K壁纸</a>
+                <a href="https://pan.quark.cn/s/9ed06b8571b8" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="WallFancy1.6.9版本安卓安装包">WallFancy</a>
+                <a href="https://pan.quark.cn/s/2ddb800962d5" class="glowing-button" data-tag="bizhiruanjian"
+                    data-description="心悦壁纸5.4.9版本安卓安装包">心悦壁纸</a>
+
+
+
+
+                <!-- AI绘画 -->
+                <a href="https://pan.quark.cn/s/a8a14d5aaf42" class="glowing-button" data-tag="aihuihua"
+                    data-description="1697张国漫女神壁纸，汇聚热门国漫女性角色，颜值与气质兼具，国漫粉丝必备">国漫女神壁纸 1697张</a>
+                <a href="https://pan.baidu.com/s/14wANVYaYerUdV-_LVU72xw?pwd=1234" class="glowing-button"
+                    data-tag="aihuihua" data-description="古风水墨少女壁纸，提取码1234，画风典雅，融合古风与二次元元素，意境悠远">古风水墨少女</a>
+
+                <a href="https://jimeng.jianying.com/s/iktDWedQ/" class="glowing-button" data-tag="aihuihua"
+                    data-description="抖音剪映旗下AI创作工具，支持图片生成等功能">即梦AI</a>
+                <a href="https://www.liblib.art/" class="glowing-button" data-tag="aihuihua"
+                    data-description="AI绘画平台，每天送300分，可生图30-300张">LiblibAI</a>
+                <a href="https://tusiart.com/" class="glowing-button" data-tag="aihuihua"
+                    data-description="提供AI模型下载以及在线生图功能的平台">吐司</a>
+                <a href="https://civitai.com/" class="glowing-button" data-tag="aihuihua"
+                    data-description="海外AI模型资源平台，支持模型下载与在线生图">Civitai</a>
+                <a href="https://www.mewx.art/pc/member" class="glowing-button" data-tag="aihuihua"
+                    data-description="支持小程序端的AI创作平台">Mewx AI</a>
+                <a href="https://www.shakker.ai/" class="glowing-button" data-tag="aihuihua"
+                    data-description="专注AI模型下载与在线生图的工具平台">shakker</a>
+
+                <a href="https://www.midjourney.com/home" class="glowing-button" data-tag="aihuihua"
+                    data-description="知名AI图像和插画生成工具，月付10美元">Midjourney</a>
+                <a href="https://pan.quark.cn/s/967f3410b573" class="glowing-button" data-tag="aihuihua"
+                    data-description="StabilityAI推出的文本到图像生成AI工具资源">Stable Diffusion</a>
+
+
+                <a href="https://miaohua.sensetime.com/inspiration?invite_code=9yvxNm7BR" class="glowing-button"
+                    data-tag="aihuihua" data-description="商汤科技推出的免费AI作画和图片生成平台">秒画</a>
+                <a href="https://www.whee.com/" class="glowing-button" data-tag="aihuihua"
+                    data-description="美图推出的AI图片和绘画创作生成平台">WHEE</a>
+                <a href="https://acgnai.art" class="glowing-button" data-tag="aihuihua"
+                    data-description="免费专业的AI绘画、模型分享平台">触手AI绘画</a>
+                <a href="https://openai.com/dall-e-2/" class="glowing-button" data-tag="aihuihua"
+                    data-description="OpenAI旗下AI图像生成工具，需申请使用权限">DALL·E 3</a>
+                <a href="https://aicomicfactory.com/zh" class="glowing-button" data-tag="aihuihua"
+                    data-description="专注AI漫画生成的工具平台">AI comic factory</a>
+                <a href="https://www.promeai.pro/" class="glowing-button" data-tag="aihuihua"
+                    data-description="AI创作相关平台，支持多种图像生成功能">Promeai</a>
+
+                <a href="https://www.acgnai.art/login?inviteCode=565576&channel=channel_invite" class="glowing-button"
+                    data-tag="aihuihua" data-description="支持在线作图的AI平台，通过邀请码注册使用">触手AI</a>
+
+                <a href="https://www.aishort.top/" class="glowing-button" data-tag="aihuihua"
+                    data-description="简单易用的 AI 快捷指令表，让生产力倍增！">AiShort</a>
+                <a href="https://www.aipromptgenerator.net/zh" class="glowing-button" data-tag="aihuihua"
+                    data-description="为 ChatGPT、Claude、Midjourney、Flux 和 Stable Diffusion 创建和优化提示">AI 提示生成器</a>
+                <a href="https://www.aiprm.com/" class="glowing-button" data-tag="aihuihua"
+                    data-description="Your Cheat Code for AI like ChatGPT, Claude & Midjourney · AIPRM">AIPRM</a>
+                <a href="https://www.wujieai.com/tag-generator/tags?id=6227" class="glowing-button" data-tag="aihuihua"
+                    data-description="支持中英文，1449 项tag数据">无界AI</a>
+                <a href="https://thereisnospon.github.io/NovelAiTag/" class="glowing-button" data-tag="aihuihua"
+                    data-description="可随机抽卡">NovelAI魔导书</a>
+                <a href="https://tags.novelai.dev/" class="glowing-button" data-tag="aihuihua"
+                    data-description="3000 多的标签">标签超市</a>
+                <a href="https://arthub.ai/" class="glowing-button" data-tag="aihuihua"
+                    data-description="图片+关键词">Arthub.ai</a>
+                <a href="https://aitags.fun/default.aspx" class="glowing-button" data-tag="aihuihua"
+                    data-description="二次元图片+关键词">AiTags</a>
+                <a href="https://wolfchen.top/tag/" class="glowing-button" data-tag="aihuihua"
+                    data-description="有 r18">NovelAI tag在线生成器</a>
+
+                <a href="https://www.yuque.com/xbxbot/ai/qksfyqmatnb4z5p2" class="glowing-button" data-tag="aihuihua"
+                    data-description="包含模型下载、提示词内容的AI绘画入门教程">AI绘画入门教程</a>
+
+                <a href="https://pan.quark.cn/s/a943da60105f" class="glowing-button" data-tag="aihuihua"
+                    data-description="【AI 教程】AI 软件基础精讲">AI 软件基础精讲</a>
+                <a href="https://pan.quark.cn/s/f02467d33023" class="glowing-button" data-tag="aihuihua"
+                    data-description="ChatGPT 大师班 从入门到精通视频">ChatGPT 入门</a>
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 简介卡片 -->
+    <div id="tooltip-card" class="tooltip-card" role="tooltip" aria-hidden="true">
+        <h3 id="tooltip-title"></h3>
+        <p id="tooltip-content"></p>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-text">
+            &copy; 2025 小爆虾. 保留所有权利。<br>
+            <a href="#">关于我们</a> | <a href="#">联系方式</a> | <a href="#">开源地址</a>
+        </div>
+        <div class="footer-slogan">
+            有趣有盼，不负生活热爱。
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+
+        // 搜索和筛选功能
+        const searchInput = document.getElementById('search-input');
+        const filterCount = document.getElementById('filter-count');
+        const resultCount = document.getElementById('result-count');
+        const buttonContainer = document.getElementById('button-container');
+        const mainTagsList = document.querySelectorAll('.tag:not(.sub)');
+        const subTagsList = document.querySelectorAll('.tag.sub');
+
+        // 当前筛选的标签
+        let currentTag = 'all';
+        // 当前搜索关键词
+        let currentSearchTerm = '';
+
+        // 简介卡片元素
+        const tooltipCard = document.getElementById('tooltip-card');
+        const tooltipTitle = document.getElementById('tooltip-title');
+        const tooltipContent = document.getElementById('tooltip-content');
+
+        // 从URL哈希加载标签状态
+        function loadTagFromHash() {
+            const hash = window.location.hash.substring(1); // 去除#号
+            if (!hash) return 'all';
+
+            const params = new URLSearchParams(hash);
+            return params.get('tag') || 'all';
+        }
+
+        // 保存标签状态到URL哈希
+        function saveTagToHash(tag) {
+            const params = new URLSearchParams();
+            if (tag && tag !== 'all') {
+                params.set('tag', tag);
+                window.location.hash = params.toString();
+            } else {
+                window.location.hash = '';
+            }
+        }
+
+        // 初始化时从哈希加载标签
+        function initTagFromHash() {
+            const tagFromHash = loadTagFromHash();
+            if (tagFromHash && tagFromHash !== 'all') {
+                currentTag = tagFromHash;
+
+                // 查找并激活对应的标签
+                let targetTag;
+
+                // 先查找二级标签
+                if (tagFromHash.includes('-')) {
+                    targetTag = document.querySelector(`.tag.sub[data-tag="${tagFromHash}"]`);
+
+                    // 如果找到二级标签，同时激活其父标签
+                    if (targetTag) {
+                        const mainTag = tagFromHash.split('-')[0];
+                        const parentTag = document.querySelector(`.tag:not(.sub)[data-tag="${mainTag}"]`);
+                        if (parentTag) {
+                            parentTag.classList.add('active');
+                            parentTag.setAttribute('aria-selected', 'true');
+
+                            // 显示对应的二级标签容器
+                            const subTagsContainer = document.querySelector(`.sub-tags-container[data-for="${mainTag}"]`);
+                            if (subTagsContainer) {
+                                subTagsContainer.classList.add('show');
+                            }
+                        }
+                    }
+                }
+
+                // 如果没找到二级标签或不是二级标签，查找一级标签
+                if (!targetTag) {
+                    targetTag = document.querySelector(`.tag:not(.sub)[data-tag="${tagFromHash}"]`);
+                }
+
+                // 激活找到的标签
+                if (targetTag) {
+                    // 移除所有标签的active状态
+                    mainTagsList.forEach(t => {
+                        t.classList.remove('active');
+                        t.setAttribute('aria-selected', 'false');
+                    });
+                    subTagsList.forEach(t => {
+                        t.classList.remove('active');
+                        t.setAttribute('aria-selected', 'false');
+                    });
+
+                    // 激活目标标签
+                    targetTag.classList.add('active');
+                    targetTag.setAttribute('aria-selected', 'true');
+                }
+            }
+        }
+
+        // 搜索功能
+        searchInput.addEventListener('input', function () {
+            currentSearchTerm = this.value.toLowerCase().trim();
+            filterButtons();
+        });
+
+        // 一级标签筛选功能
+        mainTagsList.forEach(tag => {
+            tag.addEventListener('click', () => {
+                // 移除所有标签的active状态
+                mainTagsList.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                subTagsList.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+
+                // 为当前点击的标签添加active状态
+                tag.classList.add('active');
+                tag.setAttribute('aria-selected', 'true');
+
+                currentTag = tag.dataset.tag;
+                saveTagToHash(currentTag); // 保存到URL哈希
+
+                // 显示对应二级标签，隐藏其他二级标签
+                const subTagsContainers = document.querySelectorAll('.sub-tags-container');
+                subTagsContainers.forEach(container => {
+                    container.classList.remove('show');
+                });
+
+                if (currentTag !== 'all') {
+                    const targetSubTags = document.querySelector(`.sub-tags-container[data-for="${currentTag}"]`);
+                    if (targetSubTags) {
+                        targetSubTags.classList.add('show');
+                    }
+                }
+
+                filterButtons();
+            });
+
+            // 添加键盘支持
+            tag.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    tag.click();
+                }
+            });
+        });
+
+        subTagsList.forEach(tag => {
+            tag.addEventListener('click', (e) => {
+                e.stopPropagation(); // 防止事件冒泡到父元素
+
+                // 移除所有二级标签的active状态
+                subTagsList.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+
+                // 为当前点击的标签添加active状态
+                tag.classList.add('active');
+                tag.setAttribute('aria-selected', 'true');
+
+                currentTag = tag.dataset.tag;
+                saveTagToHash(currentTag); // 保存到URL哈希
+                filterButtons();
+            });
+
+            // 添加键盘支持
+            tag.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    tag.click();
+                }
+            });
+        });
+
+        // 筛选按钮
+        function filterButtons() {
+            const buttons = buttonContainer.querySelectorAll('.glowing-button');
+            let visibleButtons = 0;
+
+            buttons.forEach(button => {
+                const tag = button.dataset.tag;
+                const buttonText = button.textContent.toLowerCase();
+
+                // 检查是否匹配标签和搜索词
+                let matchesTag = false;
+
+                if (currentTag === 'all') {
+                    matchesTag = true;
+                }
+                // 检查是否匹配二级标签或其父标签
+                else if (currentTag.includes('-')) {
+                    // 二级标签匹配
+                    matchesTag = tag === currentTag;
+                } else {
+                    // 一级标签匹配：直接匹配或匹配其下的二级标签
+                    matchesTag = tag === currentTag || tag.startsWith(currentTag + '-');
+                }
+
+                const matchesSearch = !currentSearchTerm || buttonText.includes(currentSearchTerm);
+
+                // 显示或隐藏按钮
+                if (matchesTag && matchesSearch) {
+                    button.style.display = 'flex';
+                    visibleButtons++;
+                    // 添加淡入动画
+                    button.style.opacity = '0';
+                    setTimeout(() => {
+                        button.style.opacity = '1';
+                    }, 50);
+                } else {
+                    button.style.display = 'none';
+                    button.style.opacity = '1';
+                }
+            });
+
+            // 更新结果计数
+            resultCount.textContent = visibleButtons;
+
+            // 如果没有结果，显示提示
+            if (visibleButtons === 0) {
+                filterCount.innerHTML = '<span style="color: #ff4d4f;">没有找到匹配的结果</span>';
+            } else {
+                filterCount.innerHTML = `找到 <span id="result-count">${visibleButtons}</span> 个结果`;
+            }
+        }
+
+        // 简介卡片功能
+        const buttons = buttonContainer.querySelectorAll('.glowing-button');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', (e) => {
+                // 获取按钮数据
+                const title = button.textContent;
+                const description = button.dataset.description;
+
+                // 如果没有描述，不显示卡片
+                if (!description) {
+                    return;
+                }
+
+                // 设置简介内容
+                tooltipTitle.textContent = title;
+                tooltipContent.textContent = description;
+
+                // 显示简介卡片
+                tooltipCard.classList.add('show');
+                tooltipCard.setAttribute('aria-hidden', 'false');
+                button.setAttribute('aria-describedby', 'tooltip-card');
+
+                // 定位简介卡片
+                positionTooltip(e);
+            });
+
+            button.addEventListener('mousemove', positionTooltip);
+
+            button.addEventListener('mouseleave', () => {
+                tooltipCard.classList.remove('show');
+                tooltipCard.setAttribute('aria-hidden', 'true');
+                button.removeAttribute('aria-describedby');
+            });
+        });
+
+        // 定位简介卡片 - 优化版本
+        function positionTooltip(e) {
+            // 关键修复：使用pageX和pageY替代clientX和clientY，这样会考虑页面滚动偏移
+            const mouseX = e.pageX;
+            const mouseY = e.pageY;
+
+            // 获取视口尺寸
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            // 获取页面滚动偏移量
+            const scrollX = window.scrollX;
+            const scrollY = window.scrollY;
+
+            // 获取卡片尺寸
+            const cardWidth = tooltipCard.offsetWidth;
+            const cardHeight = tooltipCard.offsetHeight;
+
+            // 计算卡片位置 - 使用极小的偏移量
+            let left = mouseX + 10; // 适当增加偏移量以避免遮挡鼠标
+            let top = mouseY + 10;
+
+            // 智能边界检查 - 确保tooltip始终在可视区域内
+            if (left + cardWidth > scrollX + viewportWidth) {
+                left = mouseX - cardWidth - 10;
+            }
+            if (top + cardHeight > scrollY + viewportHeight) {
+                top = mouseY - cardHeight - 10;
+            }
+            if (left < scrollX) {
+                left = scrollX + 5;
+            }
+            if (top < scrollY) {
+                top = scrollY + 5;
+            }
+
+            // 立即设置位置
+            tooltipCard.style.left = `${left}px`;
+            tooltipCard.style.top = `${top}px`;
+        }
+
+        // 背景粒子效果 - 黑金配色
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.getElementById('background-animation'),
+            antialias: true
+        });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1000;
+        const posArray = new Float32Array(particlesCount * 3);
+        const colorArray = new Float32Array(particlesCount * 3);
+
+        for (let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 5;
+        }
+
+        // 为每个粒子分配颜色 - 70%金色和30%深灰色
+        for (let i = 0; i < particlesCount; i++) {
+            if (Math.random() < 0.7) {
+                // 金色粒子
+                colorArray[i * 3] = 1.0;     // R
+                colorArray[i * 3 + 1] = 0.84; // G
+                colorArray[i * 3 + 2] = 0.0;  // B
+            } else {
+                // 深灰色粒子
+                colorArray[i * 3] = 0.2;
+                colorArray[i * 3 + 1] = 0.2;
+                colorArray[i * 3 + 2] = 0.2;
+            }
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.005,
+            vertexColors: true
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        camera.position.z = 3;
+
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+            particlesMesh.rotation.y += 0.001;
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            initTagFromHash();
+            filterButtons();
+
+            // 为所有链接添加target="_blank"，在新页面打开
+            const links = document.querySelectorAll('.button-container .glowing-button');
+            links.forEach(link => {
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+            });
+        });
+
+        // 监听哈希变化
+        window.addEventListener('hashchange', () => {
+            initTagFromHash();
+            filterButtons();
+        });
+    </script>
+</body>
+
+</html>

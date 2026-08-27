@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>御图网 - 随机动漫壁纸 · 美女壁纸 · 每日一言</title>
+<meta name="description" content="御图网提供随机动漫壁纸、美女壁纸和精选一言文案，每次刷新都是一场与文字和画面的不期而遇。支持纯净模式全屏欣赏。">
+<meta name="keywords" content="随机壁纸,动漫壁纸,美女壁纸,一言,每日一言,文案,壁纸网站,高清壁纸,全星好壁纸">
+<meta name="author" content="御图网">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.quanxinghao.com/go/10026959">
+<meta property="og:type" content="website">
+<meta property="og:title" content="御图网 - 随机动漫壁纸 · 美女壁纸 · 每日一言">
+<meta property="og:description" content="随机动漫壁纸、美女壁纸搭配精选一言文案，每次刷新都是一场不期而遇。">
+<meta property="og:site_name" content="御图网">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="御图网 - 随机动漫壁纸 · 美女壁纸 · 每日一言">
+<meta name="twitter:description" content="随机动漫壁纸、美女壁纸搭配精选一言文案，每次刷新都是一场不期而遇。">
+<meta name="theme-color" content="#0f0f13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="御图网">
+<meta name="format-detection" content="telephone=no">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&family=Orbitron:wght@500;700&family=Oswald:wght@500;700&family=Press+Start+2P&family=Noto+Serif+SC:wght@400;600&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f0f13;
+    --card: rgba(255,255,255,0.06);
+    --card-border: rgba(255,255,255,0.08);
+    --text: #e8e6e3;
+    --text-dim: #8a8690;
+    --accent: #c9a87c;
+    --accent-glow: rgba(201,168,124,0.25);
+  }
+
+  body {
+    font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* 全屏背景图层 */
+  .bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: opacity 0.8s ease;
+    opacity: 0;
+  }
+
+  .bg-layer.active { opacity: 1; }
+
+  /* 背景暗化遮罩 */
+  .bg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background: rgba(0,0,0,0.35);
+    transition: background 0.5s ease;
+    pointer-events: none;
+  }
+
+  /* 主容器 */
+  .container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+
+  /* 实时时钟 */
+  .clock {
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: -60px;
+    line-height: 1.5;
+  }
+
+  .clock-time {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 4.4rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.92);
+    letter-spacing: 0.12em;
+    text-shadow: 0 0 40px rgba(255,255,255,0.08), 0 2px 12px rgba(0,0,0,0.5);
+  }
+
+  .clock-date {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.2em;
+    margin-top: 4px;
+    line-height: 1.6;
+  }
+
+  .clock-lunar {
+    color: rgba(255,255,255,0.35);
+    margin-left: 6px;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* 12 小时制 am/pm 标记 */
+  .clock-ampm {
+    font-size: 0.42em;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    margin-left: 0.3em;
+    color: rgba(255,255,255,0.6);
+    vertical-align: middle;
+  }
+
+  /* 时间区域：相对定位，刷新按钮挂在时间的右上角 */
+  .clock-zone {
+    position: fixed;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 12;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+  .clock-zone:active { cursor: grabbing; }
+
+  /* 时间样式切换按钮（悬停时钟时显现，位于时间右上角） */
+  .clock-style-btn {
+    position: absolute;
+    top: 0;
+    right: -48px;
+    z-index: 50;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.5s ease;
+  }
+
+  .clock-style-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+  .clock-style-btn.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .clock-style-btn.show:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 16px var(--accent-glow);
+    transform: rotate(180deg);
+  }
+
+  /* 纯净模式下隐藏右上角按钮 */
+  body.clean-mode .clock-style-btn { opacity: 0 !important; pointer-events: none !important; }
+
+  /* 按钮组 */
+  .btn-group {
+    display: flex;
+    gap: 14px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text);
+    padding: 11px 26px;
+    border-radius: 40px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: all 0.35s ease;
+    letter-spacing: 0.08em;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,124,0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+
+  .btn:hover::before { opacity: 1; }
+
+  .btn:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 24px var(--accent-glow);
+    transform: translateY(-2px);
+  }
+
+  .btn:active {
+    transform: translateY(0) scale(0.97);
+  }
+
+  .btn.active {
+    border-color: var(--accent);
+    background: rgba(201,168,124,0.18);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  /* 展示区域 */
+  .display-area {
+    width: 100%;
+    max-width: 640px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 壁纸模式提示 */
+  .wallpaper-view {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    animation: fadeUp 0.6s ease;
+    width: 100%;
+  }
+
+  .wallpaper-view.show { display: flex; }
+
+  .empty-state {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.95rem;
+    text-align: center;
+    line-height: 1.8;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+  }
+
+  /* 壁纸模式文案 */
+  .wallpaper-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .wallpaper-quote {
+    font-size: 1.3rem;
+    line-height: 2.1;
+    color: #fff;
+    max-width: 480px;
+    text-align: center;
+    position: relative;
+    padding: 0 12px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.8), 0 0 50px rgba(0,0,0,0.5);
+    min-height: 2.6em;
+    cursor: default;
+  }
+
+  .wallpaper-quote::before,
+  .wallpaper-quote::after {
+    font-size: 2rem;
+    color: var(--accent);
+    opacity: 0.45;
+    position: absolute;
+    text-shadow: 0 0 20px var(--accent-glow);
+  }
+  .wallpaper-quote::before { content: '\201C'; top: -22px; left: -8px; }
+  .wallpaper-quote::after { content: '\201D'; bottom: -28px; right: -8px; }
+
+  /* 文案hover操作按钮 */
+  .quote-actions {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.25s ease;
+  }
+
+  .wallpaper-quote:hover .quote-actions {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .quote-action-btn {
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.7);
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .quote-action-btn svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  .quote-action-btn:hover {
+    color: #fff;
+    background: rgba(0,0,0,0.6);
+    border-color: rgba(255,255,255,0.3);
+  }
+
+  /* Toast */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: #1a1a22;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 36px 32px 28px;
+    width: 340px;
+    max-width: 90vw;
+    text-align: center;
+    box-shadow: 0 16px 60px rgba(0,0,0,0.6);
+    animation: fadeUp 0.35s ease;
+  }
+
+  .modal h3 {
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: #fff;
+    margin-bottom: 16px;
+    letter-spacing: 0.1em;
+  }
+
+  .modal p {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+
+  .modal p strong {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .modal-input {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    text-align: center;
+    letter-spacing: 0.2em;
+    margin-bottom: 16px;
+    transition: border-color 0.3s;
+  }
+
+  .modal-input:focus {
+    border-color: var(--accent);
+  }
+
+  .modal-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: #1a1a1a;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: opacity 0.3s;
+  }
+
+  .modal-btn:hover { opacity: 0.85; }
+
+  .modal-close {
+    margin-top: 14px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.3);
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+
+  .modal-close:hover { color: rgba(255,255,255,0.6); }
+
+  .modal-error {
+    color: #e85d5d;
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+    min-height: 1.2em;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(201,168,124,0.92);
+    color: #1a1a1a;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-size: 0.85rem;
+    opacity: 0;
+    transition: all 0.4s ease;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* 隐藏的图片加载器 */
+  .img-loader {
+    position: fixed;
+    top: -9999px;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* 页脚 */
+  .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 14px 0;
+    pointer-events: none;
+  }
+
+  .footer a {
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    transition: color 0.3s ease;
+    pointer-events: auto;
+  }
+
+  .footer a:hover {
+    color: var(--accent);
+  }
+
+  /* 左下角全屏提示 */
+  .fs-hint {
+    position: fixed;
+    bottom: 13px;
+    left: 18px;
+    z-index: 11;
+    color: rgba(255,255,255,0.32);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    pointer-events: none;
+    user-select: none;
+    transition: opacity 0.5s ease;
+  }
+
+  /* 右下角友情链接 */
+  .friend-links {
+    position: fixed;
+    bottom: 13px;
+    right: 18px;
+    z-index: 11;
+    color: rgba(255,255,255,0.35);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    transition: opacity 0.5s ease;
+    pointer-events: auto;
+  }
+
+  .friend-links a {
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    transition: color 0.3s ease;
+  }
+
+  .friend-links a:hover {
+    color: var(--accent);
+  }
+
+  /* 纯净模式 */
+  body.clean-mode .container { opacity: 0; pointer-events: none; }
+  body.clean-mode .bg-overlay { background: transparent !important; }
+  body.clean-mode .footer { opacity: 0; pointer-events: none; }
+  body.clean-mode .fs-hint { opacity: 0; pointer-events: none; }
+  body.clean-mode .friend-links { opacity: 0; pointer-events: none; }
+  .container, .footer, .fs-hint, .friend-links { transition: opacity 0.5s ease; }
+
+  /* 隐藏分类按钮（随机动漫 / 随机美女 / 特殊壁纸） */
+  body.hide-category .btn-group { opacity: 0; pointer-events: none; }
+  .btn-group { transition: opacity 0.5s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 520px) {
+    .container { padding: 32px 16px; }
+    .btn { padding: 9px 18px; font-size: 0.85rem; }
+    .btn-group { gap: 10px; }
+    /* F11 全屏为桌面快捷键，手机端无意义且与页脚重叠，直接隐藏 */
+    .fs-hint { display: none; }
+    .footer { gap: 14px; padding: 10px 0 14px; flex-wrap: wrap; justify-content: center; }
+    /* 手机端友情链接取消固定定位，跟随页脚流式排列在下方 */
+    .friend-links {
+      position: static;
+      width: 100%;
+      text-align: center;
+    }
+    /* 手机端时钟位置上移，切换按钮收紧 */
+    .clock-zone { top: 12%; }
+    .clock-style-btn { right: -40px; width: 38px; height: 38px; }
+  }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "御图网",
+  "url": "https://www.quanxinghao.com/go/10026959",
+  "description": "御图网提供随机动漫壁纸、美女壁纸和精选一言文案，每次刷新都是一场与文字和画面的不期而遇。",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://www.quanxinghao.com/go/10026959?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- 双缓冲背景图层 -->
+<div class="bg-layer" id="bgLayerA"></div>
+<div class="bg-layer" id="bgLayerB"></div>
+<div class="bg-overlay"></div>
+
+<!-- 隐藏图片预加载 -->
+<img class="img-loader" id="imgLoader" alt="">
+
+<main>
+<div class="container">
+  <div class="clock-zone">
+    <div class="clock" id="clock" onclick="toggleClockStyleBtn()" title="悬停此处可在右上角切换时间样式"></div>
+    <button class="clock-style-btn" id="clockStyleBtn" onclick="cycleClockStyle()" title="切换时间样式" aria-label="切换时间样式">
+      <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.96 7.96 0 0012 4c-4.42 0-8 3.58-8 8s3.58 8 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+    </button>
+  </div>
+  <div class="display-area">
+    <!-- 壁纸模式（全屏背景 + 文案） -->
+    <div class="wallpaper-view" id="wallpaperView">
+      <div class="empty-state" id="wallpaperEmpty" style="display:none;">暂无图片<br>请将图片放入对应文件夹</div>
+      <div class="wallpaper-content" id="wallpaperContent">
+        <div class="wallpaper-quote" id="wallpaperQuote"><span id="wallpaperQuoteSpan"></span><div class="quote-actions"><button class="quote-action-btn" onclick="event.stopPropagation();copyWallpaperQuote()" title="复制"><svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 00-2 2v14h2V3h12V1zm3 4H8a2 2 0 00-2 2v14a2 2 0 002 2h11a2 2 0 002-2V7a2 2 0 00-2-2zm0 16H8V7h11v14z"/></svg></button><button class="quote-action-btn" onclick="event.stopPropagation();showWallpaperQuote()" title="换文案"><svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.96 7.96 0 0012 4c-4.42 0-8 3.58-8 8s3.58 8 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></button></div></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="btn-group" aria-label="壁纸分类">
+    <button class="btn active" id="btnAnime" onclick="switchMode('anime')" aria-label="随机动漫壁纸">随机动漫</button>
+    <button class="btn" id="btnBeauty" onclick="switchMode('beauty')" aria-label="随机美女壁纸">随机美女</button>
+    <button class="btn" id="btnSpecial" onclick="trySpecialMode()" aria-label="特殊壁纸（需激活）">特殊壁纸</button>
+  </nav>
+</div>
+</main>
+
+
+<footer class="footer">
+  <a href="daohang.html">壁纸大全</a>
+  <a href="javascript:void(0)" id="toggleHide" onclick="toggleCleanMode()">纯净模式</a>
+  <a href="javascript:void(0)" id="toggleButtons" onclick="toggleCategoryButtons()">隐藏按钮</a>
+  <span class="friend-links">友情链接：<a href="https://keyushe.com/" target="_blank" rel="noopener noreferrer">科鱼社</a> <a href="https://kekesoso.com/" target="_blank" rel="noopener noreferrer">可可搜搜</a></span>
+</footer>
+
+<div class="fs-hint" id="fsHint">按 F11 进入全屏</div>
+<div class="toast" id="toast"></div>
+
+<!-- 激活码弹窗 -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>特殊壁纸 · 激活</h3>
+    <p>该功能需获取激活码解锁<br>解锁价格 <strong>1.9元</strong><br>联系微信 <strong>gmgm2003</strong> 获取激活码</p>
+    <div class="modal-error" id="modalError"></div>
+    <input class="modal-input" id="codeInput" type="text" placeholder="请输入激活码" maxlength="20">
+    <button class="modal-btn" onclick="activateCode()">激活</button>
+    <br>
+    <button class="modal-close" onclick="closeModal()">暂不激活</button>
+  </div>
+</div>
+
+<script>
+let hitokotoList = [];
+let animeImages = [];
+let beautyImages = [];
+let specialImages = [];
+let currentFolder = '';
+let activeBgLayer = 'A'; // 双缓冲切换
+
+// 背景图层引用
+const bgLayerA = document.getElementById('bgLayerA');
+const bgLayerB = document.getElementById('bgLayerB');
+const imgLoader = document.getElementById('imgLoader');
+
+// 加载一言数据
+async function loadHitokotoData() {
+  try {
+    const res = await fetch('data/hitokoto.txt');
+    const text = await res.text();
+    hitokotoList = text.split('\n').map(s => s.trim()).filter(Boolean);
+  } catch (e) {
+    hitokotoList = ['生活不止眼前的苟且，还有诗和远方。'];
+  }
+}
+
+// 扫描文件夹图片
+async function scanFolder(folder) {
+  try {
+    const res = await fetch(`${folder}/`);
+    const html = await res.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const links = Array.from(doc.querySelectorAll('a'))
+      .map(a => a.getAttribute('href'))
+      .filter(href => href && /\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(href));
+    return links.map(href => `${folder}/${href}`);
+  } catch (e) {
+    return [];
+  }
+}
+
+// 设置全屏背景（带双缓冲淡入）
+function setBackgroundImage(url) {
+  const nextLayer = activeBgLayer === 'A' ? bgLayerB : bgLayerA;
+  const currLayer = activeBgLayer === 'A' ? bgLayerA : bgLayerB;
+
+  // 预加载图片
+  imgLoader.onload = () => {
+    nextLayer.style.backgroundImage = `url(${url})`;
+    nextLayer.classList.add('active');
+    currLayer.classList.remove('active');
+    activeBgLayer = activeBgLayer === 'A' ? 'B' : 'A';
+  };
+  imgLoader.onerror = () => {
+    // 加载失败时跳过
+  };
+  imgLoader.src = url;
+}
+
+// 清除背景
+function clearBackground() {
+  bgLayerA.classList.remove('active');
+  bgLayerB.classList.remove('active');
+  bgLayerA.style.backgroundImage = '';
+  bgLayerB.style.backgroundImage = '';
+}
+
+// 切换模式
+async function switchMode(mode) {
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  const btnMap = { anime: 'btnAnime', beauty: 'btnBeauty', special: 'btnSpecial' };
+  document.getElementById(btnMap[mode]).classList.add('active');
+
+  const wallpaperView = document.getElementById('wallpaperView');
+  const emptyEl = document.getElementById('wallpaperEmpty');
+  const contentEl = document.getElementById('wallpaperContent');
+
+  wallpaperView.classList.add('show');
+  currentFolder = mode;
+
+  let images;
+  if (mode === 'anime') images = animeImages;
+  else if (mode === 'beauty') images = beautyImages;
+  else images = specialImages;
+
+  if (images.length === 0) {
+    images = await scanFolder(mode);
+    if (mode === 'anime') animeImages = images;
+    else if (mode === 'beauty') beautyImages = images;
+    else specialImages = images;
+  }
+
+  if (images.length > 0) {
+    emptyEl.style.display = 'none';
+    contentEl.style.display = 'flex';
+    showRandomWallpaper(images);
+  } else {
+    emptyEl.style.display = 'block';
+    contentEl.style.display = 'none';
+    clearBackground();
+  }
+}
+
+// 随机壁纸（全屏背景）
+function showRandomWallpaper(images) {
+  const idx = Math.floor(Math.random() * images.length);
+  setBackgroundImage(images[idx]);
+}
+
+function showWallpaperQuote() {
+  if (hitokotoList.length === 0) return;
+  const el = document.getElementById('wallpaperQuote');
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(10px)';
+  setTimeout(() => {
+    const idx = Math.floor(Math.random() * hitokotoList.length);
+    document.getElementById('wallpaperQuoteSpan').textContent = hitokotoList[idx];
+    el.style.transition = 'all 0.6s ease';
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+  }, 300);
+}
+
+// 复制壁纸模式文案
+async function copyWallpaperQuote() {
+  const text = document.getElementById('wallpaperQuoteSpan').textContent;
+  if (!text) {
+    showToast('暂无文案可复制');
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('文案已复制到剪贴板');
+  } catch {
+    fallbackCopy(text);
+  }
+}
+
+// 降级复制
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;left:-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showToast('已复制到剪贴板');
+  } catch {
+    showToast('复制失败');
+  }
+  document.body.removeChild(ta);
+}
+
+// Toast
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// 农历数据与转换
+const lunarInfo = [0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x05ac0,0x0ab60,0x096d5,0x092e0,0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,0x14b63];
+const lunarMonthNames = ['正','二','三','四','五','六','七','八','九','十','冬','腊'];
+const lunarDayNames = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+const weekNames = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+
+function getLunar(y, m, d) {
+  const baseDate = new Date(1900, 0, 31);
+  const objDate = new Date(y, m - 1, d);
+  let offset = Math.floor((objDate - baseDate) / 86400000);
+  let lunarY = 1900, lunarM = 1, lunarD = 1;
+  let isLeap = false;
+  for (let i = 1900; i < 2101 && offset > 0; i++) {
+    let daysInYear = lunarYearDays(i);
+    offset -= daysInYear;
+    lunarY++;
+  }
+  if (offset < 0) { offset += lunarYearDays(--lunarY); }
+  let leap = leapMonth(lunarY);
+  for (let i = 1; i < 13 && offset > 0; i++) {
+    if (leap > 0 && i === (leap + 1) && !isLeap) {
+      --i; isLeap = true;
+      let daysInMonth = leapDays(lunarY);
+      offset -= daysInMonth;
+    } else {
+      let daysInMonth = lunarMonthDays(lunarY, i);
+      offset -= daysInMonth;
+    }
+    if (isLeap && i === (leap + 1)) isLeap = false;
+    if (!isLeap) lunarM = i > leap ? i - 1 : i;
+  }
+  if (offset === 0 && leap > 0 && lunarM === leap + 1) {
+    if (isLeap) { isLeap = false; } else { isLeap = true; --lunarM; }
+  }
+  if (offset < 0) { offset += lunarMonthDays(lunarY, lunarM === leap + 1 && !isLeap ? lunarM : --lunarM); }
+  lunarD = offset + 1;
+  return { year: lunarY, month: lunarM, day: lunarD, isLeap, monthStr: (isLeap ? '闰' : '') + lunarMonthNames[lunarM - 1] + '月', dayStr: lunarDayNames[lunarD - 1] };
+}
+
+function lunarYearDays(y) { let sum = 348; for (let i = 0x8000; i > 0x8; i >>= 1) sum += (lunarInfo[y - 1900] & i) ? 1 : 0; return sum + leapDays(y); }
+function leapMonth(y) { return lunarInfo[y - 1900] & 0xf; }
+function leapDays(y) { if (leapMonth(y)) return (lunarInfo[y - 1900] & 0x10000) ? 30 : 29; return 0; }
+function lunarMonthDays(y, m) { return (lunarInfo[y - 1900] & (0x10000 >> m)) ? 30 : 29; }
+
+// 特殊壁纸模式
+function trySpecialMode() {
+  const activated = localStorage.getItem('special_activated');
+  if (activated) {
+    switchMode('special');
+  } else {
+    document.getElementById('modalOverlay').classList.add('show');
+    document.getElementById('codeInput').value = '';
+    document.getElementById('modalError').textContent = '';
+  }
+}
+
+// 激活码验证
+function activateCode() {
+  const code = document.getElementById('codeInput').value.trim();
+  const errorEl = document.getElementById('modalError');
+  if (!code) {
+    errorEl.textContent = '请输入激活码';
+    return;
+  }
+  if (code === '1027') {
+    localStorage.setItem('special_activated', 'true');
+    closeModal();
+    switchMode('special');
+    showToast('激活成功');
+  } else {
+    errorEl.textContent = '激活码格式不正确';
+  }
+}
+
+// 关闭弹窗
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+// 纯净模式切换
+function toggleCleanMode() {
+  document.body.classList.toggle('clean-mode');
+  const isClean = document.body.classList.contains('clean-mode');
+  document.getElementById('toggleHide').textContent = isClean ? '显示界面' : '纯净模式';
+}
+
+// 隐藏/显示分类按钮（随机动漫 / 随机美女 / 特殊壁纸）
+function toggleCategoryButtons() {
+  document.body.classList.toggle('hide-category');
+  const hidden = document.body.classList.contains('hide-category');
+  document.getElementById('toggleButtons').textContent = hidden ? '显示按钮' : '隐藏按钮';
+}
+
+// 时间样式配置（视觉风格主题：字体/字号/配色/排版均不同）
+const clockStyles = [
+  {
+    id: 'classic', name: '经典',
+    font: "'Rajdhani', 'Noto Sans SC', sans-serif", weight: '500',
+    timeSize: '4.4rem', tracking: '0.12em', layout: 'below',
+    color: 'rgba(255,255,255,0.92)', glow: '0 0 40px rgba(255,255,255,0.08), 0 2px 12px rgba(0,0,0,0.5)',
+    dateColor: 'rgba(255,255,255,0.45)',
+    hour12: false, seconds: true, date: true, lunar: true, lang: 'zh'
+  },
+  {
+    id: 'digital', name: '数码',
+    font: "'Courier New', 'SFMono-Regular', Consolas, monospace", weight: '400',
+    timeSize: '4.2rem', tracking: '0.06em', layout: 'below',
+    color: '#74f5a8', glow: '0 0 10px rgba(116,245,168,0.55), 0 0 28px rgba(116,245,168,0.22)',
+    dateColor: 'rgba(116,245,168,0.6)',
+    hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
+  },
+  {
+    id: 'english', name: '英文',
+    font: "'Rajdhani', sans-serif", weight: '500',
+    timeSize: '3.8rem', tracking: '0.1em', layout: 'below',
+    color: 'rgba(255,255,255,0.92)', glow: '0 2px 12px rgba(0,0,0,0.5)',
+    dateColor: 'rgba(255,255,255,0.45)',
+    hour12: true, seconds: false, date: true, lunar: true, lang: 'en'
+  },
+  // —— 以下为新增视觉风格 ——
+  {
+    id: 'neon', name: '霓虹',
+    font: "'Orbitron', 'Rajdhani', sans-serif", weight: '700',
+    timeSize: '4rem', tracking: '0.05em', layout: 'below',
+    color: '#ff5fd2', glow: '0 0 8px rgba(255,95,210,0.9), 0 0 24px rgba(255,95,210,0.55), 0 0 46px rgba(120,80,255,0.5)',
+    dateColor: 'rgba(125,205,255,0.9)',
+    hour12: false, seconds: true, date: true, lunar: false, lang: 'en'
+  },
+  {
+    id: 'retro', name: '复古',
+    font: "'Courier New', 'SFMono-Regular', Consolas, monospace", weight: '700',
+    timeSize: '4rem', tracking: '0.08em', layout: 'below',
+    color: '#ffb347', glow: '0 0 6px rgba(255,179,71,0.8), 0 0 18px rgba(255,140,0,0.45)',
+    dateColor: 'rgba(255,179,71,0.75)',
+    bg: 'rgba(28,16,2,0.45)', radius: '10px', pad: '0.02em 0.4em',
+    hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
+  },
+  {
+    id: 'serif', name: '衬线',
+    font: "'Noto Serif SC', 'Songti SC', 'SimSun', serif", weight: '600',
+    timeSize: '4.6rem', tracking: '0.04em', layout: 'below',
+    color: '#f5efe0', glow: '0 1px 3px rgba(0,0,0,0.4)',
+    dateColor: 'rgba(245,239,224,0.62)',
+    hour12: false, seconds: false, date: true, lunar: true, lang: 'zh'
+  },
+  {
+    id: 'pixel', name: '像素',
+    font: "'Press Start 2P', 'Courier New', monospace", weight: '400',
+    timeSize: '2.2rem', tracking: '0.02em', layout: 'below',
+    color: '#9bff7a', glow: '0 0 6px rgba(155,255,122,0.6)',
+    dateColor: 'rgba(155,255,122,0.7)',
+    bg: 'rgba(8,18,8,0.55)', radius: '6px',
+    hour12: false, seconds: true, date: false, lunar: false, lang: 'zh'
+  },
+  {
+    id: 'poster', name: '海报',
+    font: "'Oswald', 'Arial Narrow', 'Microsoft YaHei', sans-serif", weight: '700',
+    timeSize: '6rem', tracking: '0.02em', layout: 'below',
+    color: '#ffffff', glow: '0 3px 0 rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.4)',
+    dateColor: 'rgba(255,255,255,0.72)',
+    hour12: false, seconds: false, date: true, lunar: false, lang: 'zh'
+  },
+  // —— 二次新增视觉风格 ——
+  {
+    id: 'gradient', name: '渐变',
+    font: "'Rajdhani', sans-serif", weight: '600',
+    timeSize: '4.4rem', tracking: '0.1em', layout: 'below',
+    gradient: 'linear-gradient(90deg,#ff9a9e,#fad0c4,#a18cd1,#fbc2eb)',
+    glow: '0 2px 12px rgba(0,0,0,0.4)',
+    dateColor: 'rgba(255,255,255,0.6)',
+    hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
+  },
+  {
+    id: 'gold', name: '金',
+    font: "'Rajdhani', sans-serif", weight: '700',
+    timeSize: '4.4rem', tracking: '0.1em', layout: 'below',
+    gradient: 'linear-gradient(180deg,#fff3b0,#ffd700,#b8860b)',
+    glow: '0 0 14px rgba(255,215,0,0.45)',
+    dateColor: 'rgba(255,215,0,0.7)',
+    hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
+  },
+  {
+    id: 'hand', name: '手写',
+    font: "'Ma Shan Zheng', 'KaiTi', cursive", weight: '400',
+    timeSize: '4.2rem', tracking: '0.06em', layout: 'below',
+    color: '#fff7e6', glow: '0 2px 8px rgba(0,0,0,0.5)',
+    dateColor: 'rgba(255,247,230,0.65)',
+    hour12: false, seconds: false, date: true, lunar: true, lang: 'zh'
+  },
+  {
+    id: 'blue', name: '蓝调',
+    font: "'Orbitron', sans-serif", weight: '600',
+    timeSize: '4rem', tracking: '0.05em', layout: 'below',
+    color: '#5cc8ff', glow: '0 0 8px rgba(92,200,255,0.7), 0 0 24px rgba(40,120,255,0.45)',
+    dateColor: 'rgba(150,210,255,0.85)',
+    hour12: false, seconds: true, date: true, lunar: false, lang: 'en'
+  },
+  // —— 三次新增视觉风格 ——
+  {
+    id: 'flip', name: '翻页',
+    font: "'Courier New', 'SFMono-Regular', Consolas, monospace", weight: '700',
+    timeSize: '3.8rem', tracking: '0.04em', layout: 'below',
+    color: '#f5f5f5', glow: '0 2px 6px rgba(0,0,0,0.6)',
+    dateColor: 'rgba(255,255,255,0.55)',
+    bg: 'linear-gradient(180deg,#2c2c2c 0%,#2c2c2c 49.2%,#050505 50%,#1b1b1b 50.8%,#1b1b1b 100%)',
+    radius: '12px', pad: '0.2em 0.55em',
+    hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
+  },
+  {
+    id: 'stroke', name: '描边',
+    font: "'Rajdhani', sans-serif", weight: '700',
+    timeSize: '4.6rem', tracking: '0.08em', layout: 'below',
+    color: '#ffffff', glow: '0 2px 10px rgba(0,0,0,0.4)',
+    stroke: '2px rgba(0,0,0,0.6)',
+    dateColor: 'rgba(255,255,255,0.7)',
+    hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
+  },
+  {
+    id: 'cyber', name: '赛博',
+    font: "'Orbitron', sans-serif", weight: '700',
+    timeSize: '4rem', tracking: '0.05em', layout: 'below',
+    gradient: 'linear-gradient(90deg,#00eaff,#b6ff00)',
+    glow: '0 0 10px rgba(0,234,255,0.6), 0 0 26px rgba(182,255,0,0.4)',
+    dateColor: 'rgba(150,255,230,0.85)',
+    hour12: false, seconds: true, date: true, lunar: false, lang: 'en'
+  }
+];
+
+const monthEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const weekEn  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+let currentClockStyle = 0;
+try {
+  const v = parseInt(localStorage.getItem('clock_style'));
+  if (!isNaN(v) && v >= 0 && v < clockStyles.length) currentClockStyle = v;
+} catch (e) {}
+
+// 切换时间样式（点击右上角刷新按钮）
+function cycleClockStyle() {
+  currentClockStyle = (currentClockStyle + 1) % clockStyles.length;
+  try { localStorage.setItem('clock_style', currentClockStyle); } catch (e) {}
+  updateClock();
+}
+
+// 触摸端：点击时钟切换右上角刷新按钮的显隐
+function toggleClockStyleBtn() {
+  if (window.__clockDragged) { window.__clockDragged = false; return; }
+  const btn = document.getElementById('clockStyleBtn');
+  if (btn) btn.classList.toggle('show');
+}
+
+// 格式化时间
+function fmtTime(h, m, s, style) {
+  const pad = n => String(n).padStart(2, '0');
+  if (style.hour12) {
+    const ampm = h < 12 ? 'AM' : 'PM';
+    let h12 = h % 12; if (h12 === 0) h12 = 12;
+    const ss = style.seconds ? ':' + pad(s) : '';
+    return `${pad(h12)}:${pad(m)}${ss}<span class="clock-ampm">${ampm}</span>`;
+  }
+  const ss = style.seconds ? ':' + pad(s) : '';
+  return `${pad(h)}:${pad(m)}${ss}`;
+}
+
+// 实时时钟
+function updateClock() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const y = now.getFullYear();
+  const m = now.getMonth() + 1;
+  const d = now.getDate();
+  const h = now.getHours();
+  const min = now.getMinutes();
+  const s = now.getSeconds();
+  const weekZh = weekNames[now.getDay()];
+  const lunar = getLunar(y, m, d);
+  const style = clockStyles[currentClockStyle];
+
+  const clockEl = document.getElementById('clock');
+  clockEl.dataset.style = style.id;
+  clockEl.style.fontFamily = style.font;
+  clockEl.style.fontWeight = style.weight;
+  clockEl.style.letterSpacing = style.tracking;
+
+  // 日期行文案
+  let dateLine = '';
+  if (style.date) {
+    if (style.lang === 'en') {
+      dateLine = `${weekEn[now.getDay()]}, ${monthEn[m - 1]} ${d}`;
+      if (style.lunar) dateLine += ` <span class="clock-lunar">${lunar.monthStr}${lunar.dayStr}</span>`;
+    } else {
+      dateLine = `${y}年${m}月${d}日 ${weekZh}`;
+      if (style.lunar) dateLine += `<span class="clock-lunar"> ${lunar.monthStr}${lunar.dayStr}</span>`;
+    }
+  }
+
+  // 手机端缩小时间字号
+  let timeSize = style.timeSize;
+  if (window.innerWidth <= 520) {
+    const rem = parseFloat(timeSize);
+    if (!isNaN(rem)) timeSize = (rem * 0.62).toFixed(2) + 'rem';
+  }
+
+  let timeStyle = `font-size:${timeSize};font-weight:${style.weight};text-shadow:${style.glow};letter-spacing:${style.tracking};`;
+  if (style.gradient) {
+    timeStyle += `background:${style.gradient};-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;`;
+  } else {
+    timeStyle += `color:${style.color};`;
+  }
+  if (style.bg) timeStyle += `background:${style.bg};`;
+  if (style.radius) timeStyle += `border-radius:${style.radius};padding:${style.pad || '0.12em 0.4em'};`;
+  if (style.stroke) timeStyle += `-webkit-text-stroke:${style.stroke};`;
+  const timeHtml = `<div class="clock-time" style="${timeStyle}">${fmtTime(h, min, s, style)}</div>`;
+  const dateHtml = dateLine ? `<div class="clock-date" style="color:${style.dateColor};">${dateLine}</div>` : '';
+
+  // 支持「日期在上方」的排版（layout 为 'above' 时）
+  clockEl.innerHTML = style.layout === 'above' ? dateHtml + timeHtml : timeHtml + dateHtml;
+
+  const pill = document.getElementById('clockStyleBtn');
+  if (pill) pill.title = '切换时间样式（当前：' + style.name + '）';
+}
+setInterval(updateClock, 1000);
+updateClock();
+window.addEventListener('resize', updateClock);
+
+// 悬停时钟时，右上角显示刷新按钮（切换时间样式）；离开后延时隐藏，便于移动到按钮点击
+(function bindClockStyleBtn() {
+  const clockEl = document.getElementById('clock');
+  const btn = document.getElementById('clockStyleBtn');
+  if (!clockEl || !btn) return;
+  let hideTimer;
+  const show = () => { clearTimeout(hideTimer); btn.classList.add('show'); };
+  const hide = () => { hideTimer = setTimeout(() => btn.classList.remove('show'), 800); };
+  clockEl.addEventListener('mouseenter', show);
+  clockEl.addEventListener('mouseleave', hide);
+  btn.addEventListener('mouseenter', show);
+  btn.addEventListener('mouseleave', hide);
+})();
+
+// 时间板块可拖动（鼠标 + 触摸），位置记忆
+(function makeClockDraggable() {
+  const zone = document.querySelector('.clock-zone');
+  if (!zone) return;
+  const KEY = 'clock_pos';
+  try {
+    const saved = localStorage.getItem(KEY);
+    if (saved) {
+      const [x, y] = saved.split(',').map(Number);
+      if (!isNaN(x) && !isNaN(y)) {
+        zone.style.left = x + 'px';
+        zone.style.top = y + 'px';
+        zone.style.transform = 'none';
+      }
+    }
+  } catch (e) {}
+
+  let dragging = false, moved = false, sx = 0, sy = 0, ox = 0, oy = 0;
+  const pos = () => { const r = zone.getBoundingClientRect(); return [r.left, r.top]; };
+
+  function onDown(e) {
+    if (e.target.closest('.clock-style-btn')) return; // 刷新按钮自身处理
+    dragging = true; moved = false;
+    const p = e.touches ? e.touches[0] : e;
+    sx = p.clientX; sy = p.clientY;
+    [ox, oy] = pos();
+    zone.style.transition = 'none';
+    if (e.cancelable) e.preventDefault();
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    const p = e.touches ? e.touches[0] : e;
+    const dx = p.clientX - sx, dy = p.clientY - sy;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+    const r = zone.getBoundingClientRect();
+    let nx = ox + dx, ny = oy + dy;
+    nx = Math.max(0, Math.min(nx, window.innerWidth - r.width));
+    ny = Math.max(0, Math.min(ny, window.innerHeight - r.height));
+    zone.style.left = nx + 'px';
+    zone.style.top = ny + 'px';
+    zone.style.transform = 'none';
+    if (e.cancelable) e.preventDefault();
+  }
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    zone.style.transition = '';
+    if (moved) {
+      const r = zone.getBoundingClientRect();
+      try { localStorage.setItem(KEY, r.left + ',' + r.top); } catch (e) {}
+      window.__clockDragged = true;
+      setTimeout(() => { window.__clockDragged = false; }, 60);
+    }
+  }
+
+  zone.addEventListener('mousedown', onDown);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+  zone.addEventListener('touchstart', onDown, { passive: false });
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('touchend', onUp);
+})();
+
+// 初始化
+(async function init() {
+  await loadHitokotoData();
+  await switchMode('anime');
+  showWallpaperQuote();
+})();
+</script>
+
+</body>
+</html>

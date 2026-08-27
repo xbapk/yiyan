@@ -1,0 +1,5 @@
+# IDE / 编辑器配置（本地工具元数据，不入库）
+.vscode/
+
+# WorkBuddy 本地工具元数据（不入库）
+.workbuddy/

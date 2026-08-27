@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自媒体封面生成器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=Noto+Serif+SC:wght@400;700;900&family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&display=swap">
+<!-- 霞鹜文楷 LXGW WenKai：SIL OFL 免费商用（基于 Klee One）；jsDelivr 分包按需加载，首次联网按需拉取用到的字 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css">
+<!-- 江城圆体 JiangChengYuanTi：SIL OFL 免费商用（基于源泉圆体/思源黑体改造的圆体）；ZSFT FontsAPI 动态分包，首次联网按需加载用到的字 -->
+<link rel="stylesheet" href="https://fontsapi.zeoseven.com/59/main/result.css">
+<style>
+  /* 得意黑 Smiley Sans：SIL OFL 免费商用，科技/自媒体现代黑体（jsDelivr 镜像） */
+  @font-face {
+    font-family: 'Smiley Sans';
+    src: url('https://cdn.jsdelivr.net/gh/xue-ding-e/smiley-sans-online/SmileySans-Oblique.ttf.woff2') format('woff2');
+    font-display: swap;
+  }
+  /* 优设标题黑 YouSheBiaoTiHei：优设网联合字由发布，永久免费可商用；jsDelivr 镜像 npm 包 @zf-web-font/youshebiaotihei */
+  @font-face {
+    font-family: 'YouSheBiaoTiHei';
+    src: url('https://cdn.jsdelivr.net/npm/@zf-web-font/youshebiaotihei@0.2.0/YouSheBiaoTiHei-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Heiti SC", "黑体", "Source Han Sans SC", sans-serif;
+    background: radial-gradient(1200px 800px at 50% 0%, #23232b, #141417 70%);
+    color: #e9e9ec;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== 工作区：居中放置封面卡片 ===== */
+  .workspace {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px 384px 24px 24px;   /* 右侧预留面板空间，封面整体左移、不被遮挡 */
+  }
+
+  /* ===== 16:9 封面卡片（所见即所得） ===== */
+  .cover-card {
+    position: relative;
+    width: min(92vw, calc(88vh * 16 / 9), calc(100vw - 384px));
+    aspect-ratio: 16 / 9;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 26px 70px rgba(0,0,0,.55);
+    background: #111;
+    user-select: none;
+  }
+  .cover-bg {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center center;
+    background-repeat: no-repeat;
+    opacity: 0; transition: opacity .6s ease;
+  }
+  .cover-bg.loaded { opacity: 1; }
+  .cover-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,.4);
+    transition: background .25s ease;
+  }
+  .cover-content {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 3;
+    padding: 5% 6%;
+  }
+
+  /* ===== 标题（特黑体 + #f79646） ===== */
+  #title {
+    color: #f79646;
+    font-weight: 900;
+    font-size: 80px;
+    text-align: center;
+    line-height: 1.25;
+    letter-spacing: 2px;
+    outline: none;
+    max-width: 92%;
+    word-break: break-word;
+    transition: font-size .2s ease, color .2s ease;
+  }
+  #title:focus { background: rgba(247,150,70,.10); border-radius: 10px; }
+
+  /* ===== 标签行 ===== */
+  .tag-row {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 4%;
+  }
+  .tag {
+    padding: .34em .95em;
+    border-radius: 999px;
+    border: 1.5px solid rgba(247,150,70,.8);
+    color: #f79646;
+    background: rgba(247,150,70,.14);
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    transition: font-size .2s ease, color .2s ease;
+    cursor: text;
+  }
+  .tag:focus { background: rgba(247,150,70,.22); outline: none; }
+  .tag-text { display: inline-block; transition: color .2s ease; }
+
+  .editable { user-select: text; cursor: text; }
+
+  /* ===== 控制面板 ===== */
+  .panel {
+    position: fixed; right: 22px; top: 50%; transform: translateY(-50%); z-index: 10;
+    width: 320px; max-height: calc(100vh - 44px); overflow-y: auto;
+    background: rgba(18,18,22,.86);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px; padding: 18px 20px;
+    box-shadow: 0 14px 44px rgba(0,0,0,.45);
+    transition: transform .4s cubic-bezier(.4,0,.2,1);
+  }
+  .panel.collapsed { transform: translateY(-50%) translateX(calc(100% + 30px)); }
+  /* 常驻右侧开关按钮 */
+  .panel-fab {
+    position: fixed; right: 22px; top: 50%; transform: translateY(-50%);
+    z-index: 11; width: 50px; height: 50px; border-radius: 50%;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(18,18,22,.86); backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,.14);
+    color: #f79646; font-size: 22px; cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,.4); transition: background .2s, transform .2s;
+  }
+  .panel-fab:hover { background: rgba(247,150,70,.25); transform: translateY(-50%) scale(1.06); }
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; cursor: pointer; user-select: none;
+  }
+  .panel-title {
+    font-size: 13px; font-weight: 700; letter-spacing: 1px;
+    color: #f79646; display: flex; align-items: center; gap: 8px;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #f79646; box-shadow: 0 0 8px #f79646; }
+  .panel-toggle {
+    width: 28px; height: 28px; border: none;
+    background: rgba(255,255,255,.08); color: #ccc;
+    border-radius: 8px; cursor: pointer; font-size: 13px; transition: all .2s;
+  }
+  .panel-toggle:hover { background: rgba(247,150,70,.25); color: #fff; }
+
+  .field { margin-bottom: 14px; }
+  .field:last-of-type { margin-bottom: 14px; }
+  .field-label {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: #9a9aa0; margin-bottom: 7px;
+  }
+  .field-label .val { color: #f79646; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .text-input {
+    width: 100%; background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12); border-radius: 8px;
+    padding: 9px 12px; color: #fff; font-size: 13px;
+    font-family: inherit; outline: none;
+    transition: border-color .2s, background .2s;
+  }
+  .text-input:focus { border-color: rgba(247,150,70,.6); background: rgba(247,150,70,.06); }
+  select.text-input { appearance: none; -webkit-appearance: none; cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, #f79646 50%), linear-gradient(135deg, #f79646 50%, transparent 50%);
+    background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+    background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; padding-right: 30px; }
+  select.text-input option { color: #222; background: #fff; }
+
+  .tag-inputs { display: flex; gap: 8px; }
+  .tag-input {
+    flex: 1; min-width: 0; background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12); border-radius: 8px;
+    padding: 9px 10px; color: #f79646; font-size: 13px; font-weight: 600;
+    font-family: inherit; outline: none; text-align: center;
+    transition: border-color .2s, background .2s;
+  }
+  .tag-input:focus { border-color: rgba(247,150,70,.6); background: rgba(247,150,70,.08); }
+
+  input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; background: rgba(255,255,255,.15);
+    border-radius: 2px; outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; background: #f79646;
+    border-radius: 50%; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.4);
+    transition: transform .15s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  input[type=range]::-moz-range-thumb {
+    width: 16px; height: 16px; background: #f79646; border: none; border-radius: 50%; cursor: pointer;
+  }
+
+  .btn {
+    padding: 10px 14px; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, #f79646, #f57c2c);
+    color: #fff; box-shadow: 0 4px 14px rgba(247,150,70,.35);
+    margin-bottom: 8px;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(247,150,70,.5); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-ghost {
+    flex: 1; background: rgba(255,255,255,.06); color: #ccc;
+    border: 1px solid rgba(255,255,255,.1);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,.12); color: #fff; }
+  .btn-row { display: flex; gap: 8px; }
+
+  .hint { font-size: 11px; color: #6a6a72; margin-top: 5px; line-height: 1.5; }
+  .swatches { display: flex; gap: 7px; flex-wrap: wrap; }
+  .swatch {
+    width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: transform .15s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+  .swatch:hover { transform: scale(1.15); }
+  .swatch.active { border-color: #fff; }
+
+  .toast {
+    position: fixed; top: 26px; left: 50%; transform: translateX(-50%) translateY(-20px);
+    background: rgba(18,18,22,.92); color: #f79646; padding: 10px 22px;
+    border-radius: 30px; font-size: 13px; font-weight: 600;
+    border: 1px solid rgba(247,150,70,.3); opacity: 0; pointer-events: none;
+    transition: all .3s; z-index: 100; white-space: nowrap; max-width: 90vw; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .counter {
+    position: fixed; top: 20px; left: 20px; z-index: 10;
+    background: rgba(18,18,22,.7); backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); color: #aaa; font-size: 12px;
+    padding: 8px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,.08);
+  }
+  .counter b { color: #f79646; font-weight: 700; }
+
+  .keys {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+    z-index: 9; color: rgba(255,255,255,.55); font-size: 12px;
+    background: rgba(0,0,0,.3); padding: 7px 16px; border-radius: 20px;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    letter-spacing: .5px; pointer-events: none;
+  }
+  .keys kbd {
+    background: rgba(255,255,255,.12); padding: 2px 7px; border-radius: 5px;
+    font-family: inherit; font-size: 11px; color: #f79646; margin: 0 2px;
+  }
+
+  @media (max-width: 640px) {
+    .panel { width: calc(100vw - 40px); right: 20px; left: 20px; top: auto; bottom: 0; transform: none; max-height: 72vh; border-radius: 16px 16px 0 0; }
+    .panel.collapsed { transform: translateY(100%); }
+    .panel-fab { right: 16px; bottom: 16px; top: auto; transform: none; }
+    .keys { display: none; }
+    .workspace { padding: 16px 16px 84px; }
+    .cover-card { width: min(92vw, calc(74vh * 16 / 9)); }
+  }
+</style>
+</head>
+<body>
+  <div class="workspace">
+    <div class="cover-card" id="card">
+      <div class="cover-bg" id="bg"></div>
+      <div class="cover-overlay" id="overlay"></div>
+      <div class="cover-content">
+        <h1 id="title" class="editable">推荐6个极品宝藏网站</h1>
+        <div class="tag-row" id="tagRow">
+          <span class="tag"><span class="tag-text editable">科技</span></span>
+          <span class="tag"><span class="tag-text editable">网站</span></span>
+          <span class="tag"><span class="tag-text editable">信息差</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="counter">壁纸 <b id="curIdx">1</b> / <b id="total">6</b></div>
+  <div class="keys"><kbd>双击</kbd> 修改文字 · <kbd>空格</kbd> 切换壁纸 · <kbd>复制按钮</kbd> 导出封面</div>
+  <div class="toast" id="toast"></div>
+
+  <button class="panel-fab" id="panelFab" title="展开/收起设置">⚙</button>
+  <div class="panel" id="panel">
+    <div class="panel-header" id="panelHeader">
+      <div class="panel-title"><span class="dot"></span>封面生成器</div>
+      <button class="panel-toggle" id="panelToggle" title="收起/展开">▾</button>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span>标题文字</span></div>
+      <input type="text" class="text-input" id="textInput" placeholder="输入标题文字">
+      <div class="hint">也可双击卡片上的标题/标签直接修改</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span>标签文字</span></div>
+      <div class="tag-inputs" id="tagInputs">
+        <input type="text" class="tag-input" data-i="0" placeholder="标签1" maxlength="12">
+        <input type="text" class="tag-input" data-i="1" placeholder="标签2" maxlength="12">
+        <input type="text" class="tag-input" data-i="2" placeholder="标签3" maxlength="12">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span>字体</span></div>
+      <select class="text-input" id="fontSelect"></select>
+      <div class="hint">部分字体需联网加载（SIL 开源，可免费商用）</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span>字体大小</span><span class="val" id="sizeVal">80px</span></div>
+      <input type="range" id="sizeRange" min="20" max="200" value="80" step="1">
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span>遮罩透明度</span><span class="val" id="maskVal">40%</span></div>
+      <input type="range" id="maskRange" min="0" max="90" value="40" step="1">
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span>文字颜色</span></div>
+      <div class="swatches" id="swatches"></div>
+    </div>
+
+    <div class="field">
+      <button class="btn btn-primary" id="copyBtn">一键复制封面</button>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="downloadBtn">下载</button>
+        <button class="btn btn-ghost" id="switchBtn">切换</button>
+        <button class="btn btn-ghost" id="resetBtn">重置</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ============================================================
+       壁纸配置：默认只兜底 6 张；实际会【自动扫描 anime 文件夹】，
+       把里面的图片（jpg/jpeg/png/webp/gif/bmp）全部纳入随机池。
+       以后只需把图片丢进 anime/ 文件夹，刷新即可随机显示，无需改代码。
+       （以 file:// 直接打开时无法扫描，会回退到下面的默认列表）
+       建议图片均为 16:9（如 1920x1080），随机切换作封面背景。
+       ============================================================ */
+    let WALLPAPERS = [
+      'anime/wallpaper_1.jpg',
+      'anime/wallpaper_2.jpg',
+      'anime/wallpaper_3.jpg',
+      'anime/wallpaper_4.jpg',
+      'anime/wallpaper_5.jpg',
+      'anime/wallpaper_6.jpg'
+    ];
+
+    // 颜色预设：纯色 {c} 或 科技渐变 {g:[...], angle, label}
+    const COLOR_PRESETS = [
+      { c: '#f79646' }, { c: '#ffffff' }, { c: '#4cd964' },
+      { c: '#3aa0ff' }, { c: '#ff85c0' }, { c: '#b07bff' }, { c: '#00B38A' },
+      { c: '#00FFFF' }, { c: '#FFFF00' }, { c: '#FFD700' }, { c: '#39FF14' },
+      // —— 科技风格渐变（冷色主导，两端都亮，深色壁纸上不发灰）——
+      { g: ['#6EE7FF', '#3B9EFF'], angle: 90,  label: '亮青蓝' },
+      { g: ['#C9A7FF', '#FF8AD8'], angle: 90,  label: '亮紫粉' },
+      { g: ['#7DF9C4', '#2FD3A8'], angle: 90,  label: '亮青绿' },
+      { g: ['#A6B8FF', '#C18BFF'], angle: 90,  label: '亮蓝紫' },
+      { g: ['#3A7BD5', '#00D2FF'], angle: 90,  label: '极光蓝青' },
+      { g: ['#48C6EF', '#6F86D6'], angle: 90,  label: '冰蓝' },
+      { g: ['#00F2FE', '#4FACFE'], angle: 90,  label: '赛博青绿' },
+      { g: ['#43E97B', '#38F9D7'], angle: 90,  label: '薄荷霓虹' },
+      // —— 柔和文艺渐变 ——
+      { g: ['#FAD961', '#F76B1C'], angle: 90,  label: '落日熔金' },
+      { g: ['#FF9A8B', '#FFC3A0'], angle: 90,  label: '海雾粉橙' },
+      { g: ['#A0C4FF', '#FFD6E8'], angle: 90,  label: '冰川粉蓝' },
+      { g: ['#A8E6CF', '#DCEDC1'], angle: 90,  label: '薄荷奶绿' },
+      { g: ['#8CA0A8', '#C8D3D8'], angle: 90,  label: '烟雨青灰' },
+      // —— 浅色清新渐变 ——
+      { g: ['#FFFFFF', '#FFB6E6'], angle: 90,  label: '白→柔粉紫' },
+      { g: ['#FFFFFF', '#FFDD77'], angle: 90,  label: '银白→香槟金' },
+      { g: ['#FFFFFF', '#74D7FF'], angle: 90,  label: '白→冰湖蓝' },
+      { g: ['#D888FF', '#62E2FF'], angle: 90,  label: '香芋紫→天青蓝' },
+      { g: ['#FF8AB2', '#BC88FF'], angle: 90,  label: '蜜桃粉→薰衣草紫' },
+      { g: ['#B26BFF', '#2F88FF'], angle: 90,  label: '紫罗兰→宝蓝' },
+      { g: ['#58FFDD', '#3498FF'], angle: 90,  label: '薄荷青→晴空蓝' },
+      { g: ['#E8E8F2', '#979DFF'], angle: 90,  label: '冷银灰→浅蓝紫' },
+      { g: ['#FFF2D8', '#FF8C80'], angle: 90,  label: '奶杏→橘粉' },
+      { g: ['#F8F8FF', '#D1A8FF'], angle: 90,  label: '月光白→丁香紫' },
+      // —— 特殊：透明填充 + 紫色描边 ——
+      { stroke: '#b07bff', label: '透明紫描边', width: 1.6 }
+    ];
+    const DEFAULT_COLOR_IDX = 0;
+    const DEFAULT_TAGS = ['科技', '网站', '信息差'];
+
+    // 字体预设（全部 SIL OFL 开源，可免费商用；系统字体离线即用，Web 字体需联网加载）
+    // family 直接作为 CSS font-family / Canvas ctx.font 的字族串
+    const FONTS = [
+      { label: '系统默认（雅黑/苹方）', family: '"Microsoft YaHei","PingFang SC","Heiti SC",sans-serif' },
+      { label: '黑体',                 family: '"SimHei","Heiti SC","Microsoft YaHei",sans-serif' },
+      { label: '楷体',                 family: '"KaiTi","STKaiti","Kaiti SC",serif' },
+      { label: '宋体',                 family: '"SimSun","STSong","Songti SC",serif' },
+      { label: '等线',                 family: '"DengXian","Microsoft YaHei",sans-serif' },
+      { label: '思源黑体 Noto Sans SC',  family: '"Noto Sans SC","Microsoft YaHei",sans-serif' },
+      { label: '思源宋体 Noto Serif SC',  family: '"Noto Serif SC","SimSun",serif' },
+      { label: '得意黑 Smiley Sans（科技潮流）', family: '"Smiley Sans","Microsoft YaHei",sans-serif' },
+      { label: '优设标题黑 YouSheBiaoTiHei（简洁标题）', family: '"YouSheBiaoTiHei","Microsoft YaHei",sans-serif' },
+      { label: '站酷快乐体 ZCOOL KuaiLe',     family: '"ZCOOL KuaiLe","Microsoft YaHei",sans-serif' },
+      { label: '毛笔楷书 Ma Shan Zheng',      family: '"Ma Shan Zheng","KaiTi",serif' },
+      { label: '霞鹜文楷 LXGW WenKai（免费商用楷体）', family: '"LXGW WenKai","KaiTi",serif' },
+      { label: '江城圆体 JiangChengYuanTi（免费商用圆体）', family: '"JiangChengYuanTi","Microsoft YaHei",sans-serif' }
+    ];
+    const DEFAULT_FONT_IDX = 0;
+
+    // ===== 元素 =====
+    const card      = document.getElementById('card');
+    const bg        = document.getElementById('bg');
+    const overlay   = document.getElementById('overlay');
+    const title     = document.getElementById('title');
+    const tagRow    = document.getElementById('tagRow');
+    const tagEls    = [...tagRow.querySelectorAll('.tag')];
+    const tagTextEls = [...tagRow.querySelectorAll('.tag-text')];
+    const textInput = document.getElementById('textInput');
+    const sizeRange = document.getElementById('sizeRange');
+    const sizeVal   = document.getElementById('sizeVal');
+    const maskRange = document.getElementById('maskRange');
+    const maskVal   = document.getElementById('maskVal');
+    const copyBtn   = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const switchBtn = document.getElementById('switchBtn');
+    const resetBtn  = document.getElementById('resetBtn');
+    const curIdx    = document.getElementById('curIdx');
+    const total     = document.getElementById('total');
+    const toast     = document.getElementById('toast');
+    const swatches  = document.getElementById('swatches');
+    const tagInputs = document.getElementById('tagInputs');
+    const tagInputEls = [...tagInputs.querySelectorAll('.tag-input')];
+    const fontSelect = document.getElementById('fontSelect');
+    const panel     = document.getElementById('panel');
+    const panelHeader = document.getElementById('panelHeader');
+    const panelToggle = document.getElementById('panelToggle');
+
+    total.textContent = WALLPAPERS.length;
+
+    const LS = {
+      get: (k, d) => { try { const v = localStorage.getItem('rw_' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+      set: (k, v) => { try { localStorage.setItem('rw_' + k, JSON.stringify(v)); } catch {} }
+    };
+
+    let lastIndex = LS.get('lastWallpaper', -1);
+    let currentImg = null;   // 当前壁纸 Image 对象，供 Canvas 合成使用
+
+    // ===== 随机切换壁纸 =====
+    let switchToken = 0;
+    function switchWallpaper(silent) {
+      if (!WALLPAPERS.length) return;
+      const token = ++switchToken;   // 防竞态：快速连续切换时只让最后一次生效
+      let idx;
+      if (WALLPAPERS.length === 1) idx = 0;
+      else { do { idx = Math.floor(Math.random() * WALLPAPERS.length); } while (idx === lastIndex); }
+      lastIndex = idx;
+      curIdx.textContent = idx + 1;
+      LS.set('lastWallpaper', idx);
+
+      const src = WALLPAPERS[idx];
+      let settled = false;
+      const paint = (image, uri) => {
+        if (token !== switchToken || settled) return;
+        settled = true;
+        currentImg = image;
+        bg.classList.remove('loaded');
+        setTimeout(() => {
+          if (token !== switchToken) return;
+          bg.style.backgroundImage = `url("${uri}")`;
+          bg.classList.add('loaded');
+        }, 160);
+      };
+      const img = new Image();
+      img.onload = () => paint(img, src);
+      img.onerror = () => {
+        if (token !== switchToken) return;
+        // 容错：服务器按扩展名给的 Content-Type 与真实格式不符（如 .png 实为 jpeg）
+        // 时，改为 fetch 成 blob 让浏览器按真实内容解码，避免显示成兜底纯色块
+        fetch(src, { cache: 'no-store' }).then(r => { if (!r.ok) throw 0; return r.blob(); })
+          .then(b => {
+            if (token !== switchToken) return;
+            const url = URL.createObjectURL(b);
+            const b2 = new Image();
+            b2.onload = () => paint(b2, url);
+            b2.onerror = () => { URL.revokeObjectURL(url); retryNext(token, silent); };
+            b2.src = url;
+          })
+          .catch(() => retryNext(token, silent));
+      };
+      img.src = src;
+
+      if (!silent) showToast('已切换壁纸');
+    }
+    // 加载失败且无 blob 兜底时，平滑跳过该图再随机下一张，绝不卡在纯色块
+    function retryNext(token, silent) {
+      if (token !== switchToken) return;
+      if (!silent) showToast('该壁纸无法加载，已跳过');
+      switchWallpaper(false);
+    }
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => toast.classList.remove('show'), 1600);
+    }
+
+    // ===== 标题文字 =====
+    function setTitleText(t) {
+      title.textContent = t;
+      textInput.value = t;
+      LS.set('title', t);
+    }
+    textInput.addEventListener('input', e => setTitleText(e.target.value));
+
+    function saveTexts() {
+      LS.set('title', title.textContent.trim());
+      LS.set('tags', tagEls.map(t => t.textContent.trim()));
+      syncTagInputs();
+    }
+
+    // 标签输入（面板）→ 卡片
+    function setTagText(i, t) {
+      if (!tagTextEls[i]) return;
+      tagTextEls[i].textContent = t;
+      LS.set('tags', tagTextEls.map(el => el.textContent.trim()));
+    }
+    tagInputEls.forEach((inp, i) => {
+      inp.addEventListener('input', e => setTagText(i, e.target.value));
+    });
+
+    function syncTagInputs() {
+      tagEls.forEach((el, i) => { if (tagInputEls[i]) tagInputEls[i].value = el.textContent.trim(); });
+    }
+
+    // ===== 双击编辑（标题 + 标签） =====
+    function bindDblEdit(el) {
+      el.addEventListener('dblclick', () => {
+        el.setAttribute('contenteditable', 'true');
+        el.focus();
+        const r = document.createRange(); r.selectNodeContents(el);
+        const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      });
+      el.addEventListener('blur', () => {
+        el.setAttribute('contenteditable', 'false');
+        saveTexts();
+      });
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+      el.addEventListener('paste', e => {
+        e.preventDefault();
+        const t = (e.clipboardData || window.clipboardData).getData('text');
+        document.execCommand('insertText', false, t);
+      });
+    }
+    bindDblEdit(title);
+    tagTextEls.forEach(bindDblEdit);
+
+    // ===== 字体大小（标签字号联动） =====
+    function setSize(v) {
+      title.style.fontSize = v + 'px';
+      sizeRange.value = v;
+      sizeVal.textContent = v + 'px';
+      tagEls.forEach(t => t.style.fontSize = Math.max(16, v * 0.3) + 'px');
+      LS.set('size', v);
+    }
+    sizeRange.addEventListener('input', e => setSize(parseInt(e.target.value)));
+
+    // ===== 遮罩透明度 =====
+    function setMask(v) {
+      overlay.style.background = `rgba(0,0,0,${v / 100})`;
+      maskRange.value = v;
+      maskVal.textContent = v + '%';
+      LS.set('mask', v);
+    }
+    maskRange.addEventListener('input', e => setMask(parseInt(e.target.value)));
+
+    // ===== 文字颜色（纯色 + 科技渐变） =====
+    let activeColorIdx = DEFAULT_COLOR_IDX;
+    let activeColorPreset = COLOR_PRESETS[DEFAULT_COLOR_IDX];
+
+    function presetCss(p) {
+      if (p.stroke) return p.stroke;   // 描边类：色板直接用描边色
+      return p.c ? p.c : `linear-gradient(${p.angle || 90}deg, ${p.g.join(', ')})`;
+    }
+    // 标题上色：纯色直接设 color；渐变用 background-clip:text 裁切；描边类透明填充+描边
+    function applyTitleColor(p) {
+      if (p.stroke) {
+        title.style.color = 'transparent';
+        title.style.webkitTextStroke = `${p.width || 1.6}px ${p.stroke}`;
+        title.style.textStroke = `${p.width || 1.6}px ${p.stroke}`;
+        title.style.background = '';
+        title.style.webkitBackgroundClip = '';
+        title.style.backgroundClip = '';
+        title.style.webkitTextFillColor = '';
+      } else if (p.c) {
+        title.style.color = p.c;
+        title.style.webkitTextStroke = '';
+        title.style.textStroke = '';
+        title.style.background = '';
+        title.style.webkitBackgroundClip = '';
+        title.style.backgroundClip = '';
+        title.style.webkitTextFillColor = '';
+      } else {
+        const grad = presetCss(p);
+        title.style.webkitTextStroke = '';
+        title.style.textStroke = '';
+        title.style.background = grad;
+        title.style.webkitBackgroundClip = 'text';
+        title.style.backgroundClip = 'text';
+        title.style.color = 'transparent';
+        title.style.webkitTextFillColor = 'transparent';
+      }
+    }
+    // 标签：胶囊用首色描边/底色，文字用纯色或渐变；描边类透明填充+描边
+    function applyTagColor(p) {
+      const base = p.stroke || p.c || p.g[0];
+      tagEls.forEach(el => {
+        el.style.borderColor = hexToRgba(base, 0.8);
+        el.style.background = hexToRgba(base, 0.14);
+      });
+      tagTextEls.forEach(el => {
+        if (p.stroke) {
+          el.style.color = 'transparent';
+          el.style.webkitTextStroke = `${p.width || 1.4}px ${p.stroke}`;
+          el.style.textStroke = `${p.width || 1.4}px ${p.stroke}`;
+          el.style.background = '';
+          el.style.webkitBackgroundClip = '';
+          el.style.backgroundClip = '';
+          el.style.webkitTextFillColor = '';
+        } else if (p.c) {
+          el.style.webkitTextStroke = '';
+          el.style.textStroke = '';
+          el.style.color = p.c;
+          el.style.background = '';
+          el.style.webkitBackgroundClip = '';
+          el.style.backgroundClip = '';
+          el.style.webkitTextFillColor = '';
+        } else {
+          const grad = presetCss(p);
+          el.style.webkitTextStroke = '';
+          el.style.textStroke = '';
+          el.style.background = grad;
+          el.style.webkitBackgroundClip = 'text';
+          el.style.backgroundClip = 'text';
+          el.style.color = 'transparent';
+          el.style.webkitTextFillColor = 'transparent';
+        }
+      });
+    }
+    function applyPreset(p, idx) {
+      activeColorPreset = p; activeColorIdx = idx;
+      applyTitleColor(p);
+      applyTagColor(p);
+      LS.set('colorIdx', idx);
+      swatches.querySelectorAll('.swatch').forEach(s =>
+        s.classList.toggle('active', +s.dataset.i === idx));
+    }
+    COLOR_PRESETS.forEach((p, i) => {
+      const s = document.createElement('div');
+      s.className = 'swatch'; s.style.background = presetCss(p); s.dataset.i = i;
+      s.title = p.c ? p.c : (p.label || '渐变');
+      s.addEventListener('click', () => applyPreset(p, i));
+      swatches.appendChild(s);
+    });
+
+    // ===== 字体：下拉框 + 应用到标题/标签 + 持久化 =====
+    let activeFontFamily = FONTS[DEFAULT_FONT_IDX].family;
+    FONTS.forEach((p, i) => {
+      const o = document.createElement('option');
+      o.value = i; o.textContent = p.label; o.dataset.i = i;
+      fontSelect.appendChild(o);
+    });
+    function applyFont(p, idx) {
+      activeFontFamily = p.family;
+      title.style.fontFamily = p.family;
+      tagTextEls.forEach(el => el.style.fontFamily = p.family);
+      fontSelect.value = idx;
+      LS.set('fontIdx', idx);
+    }
+    fontSelect.addEventListener('change', e => applyFont(FONTS[+e.target.value], +e.target.value));
+    // 取字族串里第一个（主）字体名，用于 Font Loading API 预加载
+    function primaryFontName() {
+      return activeFontFamily.split(',')[0].replace(/["'\s]/g, '');
+    }
+    // 复制/下载前确保 Web 字体已加载，否则 Canvas 会回退系统字体
+    async function ensureFontsLoaded() {
+      try {
+        if (document.fonts && document.fonts.load) {
+          const fam = primaryFontName();
+          const titleText = title.textContent.trim();
+          const tagText = tagTextEls.map(t => t.textContent.trim()).join('');
+          const sample = titleText || tagText || '字体';
+          // 传入实际文字，让霞鹜文楷等分包子包字体精确预加载用到的字
+          await Promise.all([
+            document.fonts.load(`900 40px "${fam}"`, titleText || sample),
+            document.fonts.load(`700 24px "${fam}"`, tagText || sample)
+          ]);
+          await document.fonts.ready;
+        }
+      } catch (e) { /* 系统字体/离线时跳过，不影响导出 */ }
+    }
+
+    function hexToRgba(hex, a) {
+      const h = hex.replace('#', '');
+      const n = parseInt(h.length === 3 ? h.split('').map(x => x + x).join('') : h, 16);
+      return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+    }
+    // 把渐变停点转成 Canvas 线性渐变（按 CSS 角度映射到文字包围盒）
+    function makeCanvasGradient(ctx, stops, angle, cx, cy, w, h) {
+      const a = (angle - 90) * Math.PI / 180;
+      const dx = Math.cos(a), dy = Math.sin(a);
+      const half = (Math.abs(w * dx) + Math.abs(h * dy)) / 2;
+      const g = ctx.createLinearGradient(cx - dx * half, cy - dy * half, cx + dx * half, cy + dy * half);
+      const n = stops.length;
+      stops.forEach((s, i) => g.addColorStop(n === 1 ? 0 : i / (n - 1), s));
+      return g;
+    }
+
+    // ===== 按钮 =====
+    switchBtn.addEventListener('click', () => switchWallpaper(false));
+    resetBtn.addEventListener('click', () => {
+      setTitleText('推荐6个极品宝藏网站');
+      tagTextEls.forEach((t, i) => t.textContent = DEFAULT_TAGS[i]);
+      syncTagInputs();
+      setSize(80); setMask(40); applyPreset(COLOR_PRESETS[0], 0);
+      applyFont(FONTS[DEFAULT_FONT_IDX], DEFAULT_FONT_IDX);
+      showToast('已重置为默认');
+    });
+
+    // ===== 面板折叠（固定在右侧，带常驻开关） =====
+    const panelFab = document.getElementById('panelFab');
+    function togglePanel() {
+      const c = panel.classList.toggle('collapsed');
+      panelFab.style.display = c ? 'flex' : 'none';
+      panelToggle.textContent = c ? '▴' : '▾';
+    }
+    panelHeader.addEventListener('click', e => {
+      if (e.target.tagName === 'INPUT') return;
+      togglePanel();
+    });
+    panelFab.addEventListener('click', togglePanel);
+
+    // ===== 空格切换 =====
+    document.addEventListener('keydown', e => {
+      if (e.target === title || e.target.classList.contains('tag') || e.target === textInput) return;
+      if (e.code === 'Space') { e.preventDefault(); switchWallpaper(false); }
+    });
+
+    /* ============================================================
+       一键复制 / 下载封面
+       用 Canvas 将 壁纸(16:9) + 遮罩 + 标题 + 标签 合成 1280x720 图片
+       ============================================================ */
+    const CW = 1280, CH = 720;   // 输出封面尺寸（16:9）
+
+    function roundRectPath(ctx, x, y, w, h, r) {
+      r = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    // 按 cover 模式把图片绘制到画布
+    function drawCoverImage(ctx, img, cw, ch) {
+      const ir = img.naturalWidth / img.naturalHeight;
+      const cr = cw / ch;
+      let sx, sy, sw, sh;
+      if (ir > cr) { sh = img.naturalHeight; sw = sh * cr; sx = (img.naturalWidth - sw) / 2; sy = 0; }
+      else { sw = img.naturalWidth; sh = sw / cr; sx = 0; sy = (img.naturalHeight - sh) / 2; }
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+    }
+
+    function generateCover() {
+      const canvas = document.createElement('canvas');
+      canvas.width = CW; canvas.height = CH;
+      const ctx = canvas.getContext('2d');
+      const cardRect = card.getBoundingClientRect();
+      const scale = CW / cardRect.width;
+
+      // 1. 背景壁纸
+      if (currentImg && currentImg.complete) drawCoverImage(ctx, currentImg, CW, CH);
+      else { const g = ctx.createLinearGradient(0, 0, CW, CH); g.addColorStop(0, '#2b1055'); g.addColorStop(1, '#7597de'); ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH); }
+
+      // 2. 遮罩
+      const mask = parseInt(maskRange.value);
+      ctx.fillStyle = `rgba(0,0,0,${mask / 100})`;
+      ctx.fillRect(0, 0, CW, CH);
+
+      // 3. 标题（按预览位置精确映射，所见即所得）
+      const tRect = title.getBoundingClientRect();
+      const cx = (tRect.left + tRect.width / 2 - cardRect.left) * scale;
+      const cy = (tRect.top + tRect.height / 2 - cardRect.top) * scale;
+      const titlePx = parseInt(getComputedStyle(title).fontSize) * scale;
+      const tcsTitle = getComputedStyle(title);
+      ctx.font = `900 ${titlePx}px ${activeFontFamily}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      if (activeColorPreset.stroke) {
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = Math.max(1, (parseFloat(tcsTitle.webkitTextStrokeWidth) || 1.6) * scale);
+        ctx.strokeStyle = activeColorPreset.stroke;
+        ctx.strokeText(title.textContent.trim(), cx, cy);
+      } else if (activeColorPreset.g) {
+        ctx.fillStyle = makeCanvasGradient(ctx, activeColorPreset.g, activeColorPreset.angle || 90, cx, cy, tRect.width * scale, tRect.height * scale);
+        ctx.fillText(title.textContent.trim(), cx, cy);
+      } else {
+        ctx.fillStyle = tcsTitle.color;
+        ctx.fillText(title.textContent.trim(), cx, cy);
+      }
+
+      // 4. 标签（取实际渲染文字的 .tag-text 元素，保证与预览一致）
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      tagEls.forEach(el => {
+        if (!el.textContent.trim()) return;
+        const r = el.getBoundingClientRect();
+        const x = (r.left - cardRect.left) * scale;
+        const y = (r.top - cardRect.top) * scale;
+        const w = r.width * scale, h = r.height * scale;
+        const cs = getComputedStyle(el);
+        roundRectPath(ctx, x, y, w, h, h / 2);
+        ctx.fillStyle = cs.backgroundColor; ctx.fill();
+        ctx.lineWidth = parseFloat(cs.borderTopWidth) * scale;
+        ctx.strokeStyle = cs.borderTopColor; ctx.stroke();
+        const textEl = el.querySelector('.tag-text') || el;
+        const tr = textEl.getBoundingClientRect();
+        const tcxs = (tr.left + tr.width / 2 - cardRect.left) * scale;
+        const tcys = (tr.top + tr.height / 2 - cardRect.top) * scale;
+        const tcs = getComputedStyle(textEl);
+        ctx.font = `700 ${parseFloat(tcs.fontSize) * scale}px ${activeFontFamily}`;
+        if (activeColorPreset.stroke) {
+          ctx.lineJoin = 'round';
+          ctx.lineWidth = Math.max(1, (parseFloat(tcs.webkitTextStrokeWidth) || 1.4) * scale);
+          ctx.strokeStyle = activeColorPreset.stroke;
+          ctx.strokeText(el.textContent.trim(), tcxs, tcys);
+        } else if (activeColorPreset.g) {
+          ctx.fillStyle = makeCanvasGradient(ctx, activeColorPreset.g, activeColorPreset.angle || 90, tcxs, tcys, tr.width * scale, tr.height * scale);
+          ctx.fillText(el.textContent.trim(), tcxs, tcys);
+        } else {
+          ctx.fillStyle = tcs.color;
+          ctx.fillText(el.textContent.trim(), tcxs, tcys);
+        }
+      });
+
+      return canvas;
+    }
+
+    function buildName() {
+      const t = title.textContent.trim().replace(/[\\/:*?"<>|]/g, '').slice(0, 10) || 'cover';
+      return `封面_${t}_${Date.now()}.png`;
+    }
+
+    function downloadCanvas(canvas, name) {
+      canvas.toBlob(b => {
+        if (!b) { showToast('导出失败'); return; }
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(b); a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+        showToast('已下载封面图片');
+      }, 'image/png');
+    }
+
+    async function handleCopy() {
+      if (location.protocol === 'file:') {
+        showToast('复制功能需在浏览器打开，请访问 http://localhost:8000');
+        return;
+      }
+      if (!currentImg) { showToast('壁纸读取中，稍后重试'); return; }
+      try {
+        await ensureFontsLoaded();
+        const canvas = generateCover();
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+        if (!blob) throw new Error('empty');
+        if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          showToast('封面已复制，可直接 Ctrl+V 粘贴');
+        } else {
+          downloadCanvas(canvas, buildName());
+        }
+      } catch (e) {
+        // 剪贴板受限时降级下载
+        try { downloadCanvas(generateCover(), buildName()); }
+        catch { showToast('导出失败，请确认以 http 方式打开'); }
+      }
+    }
+
+    async function handleDownload() {
+      if (location.protocol === 'file:') {
+        showToast('下载功能需在浏览器打开，请访问 http://localhost:8000');
+        return;
+      }
+      try {
+        await ensureFontsLoaded();
+        downloadCanvas(generateCover(), buildName());
+      }
+      catch { showToast('导出失败，请确认以 http 方式打开'); }
+    }
+
+    copyBtn.addEventListener('click', handleCopy);
+    downloadBtn.addEventListener('click', handleDownload);
+
+    // ===== 自动扫描 anime 文件夹，列出所有图片 =====
+    // 优先级：目录列表（本地 http.server 永远最新，加图即生效）→ manifest.json（云端/静态托管兜底）→ 默认列表
+    async function discoverWallpapers() {
+      // 1) 目录列表（python -m http.server 等会输出带 <a> 的索引页，实时反映文件夹内容）
+      try {
+        const res = await fetch('anime/', { cache: 'no-store' });
+        if (res.ok) {
+          const html = await res.text();
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          const found = [...doc.querySelectorAll('a')]
+            .map(a => a.getAttribute('href'))
+            .filter(h => h && /(^|\/)[^/]*\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(h))
+            .map(h => 'anime/' + h.split('/').pop());
+          if (found.length) return [...new Set(found)];
+        }
+      } catch (e) { /* file:// 或非标准服务器：继续尝试 manifest */ }
+      // 2) manifest.json（静态托管无目录列表时兜底，由脚本/构建生成）
+      try {
+        const r = await fetch('anime/manifest.json', { cache: 'no-store' });
+        if (r.ok) {
+          const list = await r.json();
+          if (Array.isArray(list) && list.length) {
+            const mapped = [...new Set(list.map(f => 'anime/' + encodeURIComponent(f.split('/').pop())))];
+            if (mapped.length) return mapped;
+          }
+        }
+      } catch (e) { /* 忽略 */ }
+      // 3) 兜底默认列表
+      return WALLPAPERS;
+    }
+
+    // ===== 初始化 =====
+    async function init() {
+      WALLPAPERS = await discoverWallpapers();   // 自动纳入文件夹里新增的壁纸
+      total.textContent = WALLPAPERS.length;
+      if (LS.get('size', null) === 64) { try { localStorage.removeItem('rw_size'); } catch {} }
+      setTitleText(LS.get('title', '推荐6个极品宝藏网站'));
+      const savedTags = LS.get('tags', null);
+      if (Array.isArray(savedTags)) tagTextEls.forEach((t, i) => t.textContent = savedTags[i] ?? DEFAULT_TAGS[i]);
+      else tagTextEls.forEach((t, i) => t.textContent = DEFAULT_TAGS[i]);
+      syncTagInputs();
+      setSize(LS.get('size', 80));
+      setMask(LS.get('mask', 40));
+      const savedIdx = LS.get('colorIdx', DEFAULT_COLOR_IDX);
+      applyPreset(COLOR_PRESETS[savedIdx] || COLOR_PRESETS[DEFAULT_COLOR_IDX], savedIdx);
+      const savedFont = LS.get('fontIdx', DEFAULT_FONT_IDX);
+      applyFont(FONTS[savedFont] || FONTS[DEFAULT_FONT_IDX], savedFont);
+      switchWallpaper(true);
+    }
+    init();
+  </script>
+</body>
+</html>
