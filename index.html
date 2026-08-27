@@ -684,6 +684,18 @@ async function loadHitokotoData() {
 
 // 扫描文件夹图片
 async function scanFolder(folder) {
+  // 优先读取静态清单：GitHub Pages 等纯静态托管不提供目录索引，必须用清单
+  try {
+    const mres = await fetch('manifest.json', { cache: 'no-cache' });
+    if (mres.ok) {
+      const data = await mres.json();
+      if (data && Array.isArray(data[folder]) && data[folder].length) {
+        return data[folder];
+      }
+    }
+  } catch (e) { /* 忽略，回退目录扫描 */ }
+
+  // 回退：本地 http.server 的目录列表（仅本地预览用）
   try {
     const res = await fetch(`${folder}/`);
     const html = await res.text();
@@ -705,7 +717,7 @@ function setBackgroundImage(url) {
 
   // 预加载图片
   imgLoader.onload = () => {
-    nextLayer.style.backgroundImage = `url(${url})`;
+    nextLayer.style.backgroundImage = `url("${encodeURI(url)}")`;
     nextLayer.classList.add('active');
     currLayer.classList.remove('active');
     activeBgLayer = activeBgLayer === 'A' ? 'B' : 'A';
