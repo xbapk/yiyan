@@ -3,20 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>御图网 - 随机动漫壁纸 · 美女壁纸 · 每日一言</title>
-<meta name="description" content="御图网提供随机动漫壁纸、美女壁纸和精选一言文案，每次刷新都是一场与文字和画面的不期而遇。支持纯净模式全屏欣赏。">
-<meta name="keywords" content="随机壁纸,动漫壁纸,美女壁纸,一言,每日一言,文案,壁纸网站,高清壁纸,全星好壁纸">
-<meta name="author" content="御图网">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://www.quanxinghao.com/go/10026959">
-<meta property="og:type" content="website">
-<meta property="og:title" content="御图网 - 随机动漫壁纸 · 美女壁纸 · 每日一言">
-<meta property="og:description" content="随机动漫壁纸、美女壁纸搭配精选一言文案，每次刷新都是一场不期而遇。">
-<meta property="og:site_name" content="御图网">
-<meta property="og:locale" content="zh_CN">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="御图网 - 随机动漫壁纸 · 美女壁纸 · 每日一言">
-<meta name="twitter:description" content="随机动漫壁纸、美女壁纸搭配精选一言文案，每次刷新都是一场不期而遇。">
+<title>御图网</title>
 <meta name="theme-color" content="#0f0f13">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -26,14 +13,12 @@
 <link rel="apple-touch-icon" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&family=Orbitron:wght@500;700&family=Oswald:wght@500;700&family=Press+Start+2P&family=Noto+Serif+SC:wght@400;600&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&family=Orbitron:wght@500;700&family=Noto+Serif+SC:wght@400;600&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
     --bg: #0f0f13;
-    --card: rgba(255,255,255,0.06);
-    --card-border: rgba(255,255,255,0.08);
     --text: #e8e6e3;
     --text-dim: #8a8690;
     --accent: #c9a87c;
@@ -195,6 +180,10 @@
   }
 
   .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     background: rgba(0,0,0,0.35);
     border: 1px solid rgba(255,255,255,0.12);
     color: var(--text);
@@ -210,6 +199,17 @@
     position: relative;
     overflow: hidden;
   }
+
+  .btn-icon {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+    color: var(--text-dim);
+    transition: color 0.3s ease;
+  }
+
+  .btn:hover .btn-icon,
+  .btn.active .btn-icon { color: var(--accent); }
 
   .btn::before {
     content: '';
@@ -269,12 +269,6 @@
   }
 
   /* 壁纸模式文案 */
-  .wallpaper-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 28px;
-  }
 
   .wallpaper-quote {
     font-size: 1.3rem;
@@ -497,6 +491,9 @@
   }
 
   .footer a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     color: rgba(255,255,255,0.35);
     text-decoration: none;
     font-size: 0.78rem;
@@ -504,6 +501,15 @@
     transition: color 0.3s ease;
     pointer-events: auto;
   }
+
+  .footer-icon {
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+    flex: 0 0 auto;
+  }
+
+  .footer-icon svg { width: 14px; height: 14px; }
 
   .footer a:hover {
     color: var(--accent);
@@ -583,20 +589,19 @@
     .clock-style-btn { right: -40px; width: 38px; height: 38px; }
   }
 </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "御图网",
-  "url": "https://www.quanxinghao.com/go/10026959",
-  "description": "御图网提供随机动漫壁纸、美女壁纸和精选一言文案，每次刷新都是一场与文字和画面的不期而遇。",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://www.quanxinghao.com/go/10026959?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-  }
-}
+
+<!-- 数据统计 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?94cdbffd22e54b32a6d0ac30181b6c45";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
 </script>
+
+
 </head>
 <body>
 
@@ -620,26 +625,33 @@
     <!-- 壁纸模式（全屏背景 + 文案） -->
     <div class="wallpaper-view" id="wallpaperView">
       <div class="empty-state" id="wallpaperEmpty" style="display:none;">暂无图片<br>请将图片放入对应文件夹</div>
-      <div class="wallpaper-content" id="wallpaperContent">
         <div class="wallpaper-quote" id="wallpaperQuote"><span id="wallpaperQuoteSpan"></span><div class="quote-actions"><button class="quote-action-btn" onclick="event.stopPropagation();copyWallpaperQuote()" title="复制"><svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 00-2 2v14h2V3h12V1zm3 4H8a2 2 0 00-2 2v14a2 2 0 002 2h11a2 2 0 002-2V7a2 2 0 00-2-2zm0 16H8V7h11v14z"/></svg></button><button class="quote-action-btn" onclick="event.stopPropagation();showWallpaperQuote()" title="换文案"><svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.96 7.96 0 0012 4c-4.42 0-8 3.58-8 8s3.58 8 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></button></div></div>
-      </div>
     </div>
   </div>
 
   <nav class="btn-group" aria-label="壁纸分类">
-    <button class="btn active" id="btnAnime" onclick="switchMode('anime')" aria-label="随机动漫壁纸">随机动漫</button>
-    <button class="btn" id="btnBeauty" onclick="switchMode('beauty')" aria-label="随机美女壁纸">随机美女</button>
-    <button class="btn" id="btnSpecial" onclick="trySpecialMode()" aria-label="特殊壁纸（需激活）">特殊壁纸</button>
+    <button class="btn active" id="btnAnime" onclick="switchMode('anime')" aria-label="随机动漫壁纸">
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9.3 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9.3 9 9"/></svg>
+      随机动漫
+    </button>
+    <button class="btn" id="btnBeauty" onclick="switchMode('beauty')" aria-label="随机美女壁纸">
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg>
+      随机美女
+    </button>
+    <button class="btn" id="btnSpecial" onclick="trySpecialMode()" aria-label="特殊壁纸（需激活）">
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      特殊壁纸
+    </button>
   </nav>
 </div>
 </main>
 
 
 <footer class="footer">
-  <a href="daohang.html">壁纸大全</a>
-  <a href="javascript:void(0)" id="toggleHide" onclick="toggleCleanMode()">纯净模式</a>
-  <a href="javascript:void(0)" id="toggleButtons" onclick="toggleCategoryButtons()">隐藏按钮</a>
-  <span class="friend-links">友情链接：<a href="https://keyushe.com/" target="_blank" rel="noopener noreferrer">科鱼社</a> <a href="https://kekesoso.com/" target="_blank" rel="noopener noreferrer">可可搜搜</a></span>
+  <a href="daohang.html"><span class="footer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>壁纸大全</a>
+  <a href="javascript:void(0)" id="toggleHide" onclick="toggleCleanMode()"><span class="footer-icon" id="iconClean"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="footer-label" id="labelClean">纯净模式</span></a>
+  <a href="javascript:void(0)" id="toggleButtons" onclick="toggleCategoryButtons()"><span class="footer-icon" id="iconButtons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="footer-label" id="labelButtons">隐藏按钮</span></a>
+  <span class="friend-links">友情链接：<a href="https://keyushe.com/" target="_blank" rel="noopener noreferrer">科鱼社</a> <a href="https://kekesoso.com/" target="_blank" rel="noopener noreferrer">可可搜搜</a> <a href="https://yanzhidaohang.com/" target="_blank" rel="noopener noreferrer">颜值导航</a></span>
 </footer>
 
 <div class="fs-hint" id="fsHint">按 F11 进入全屏</div>
@@ -663,8 +675,11 @@ let hitokotoList = [];
 let animeImages = [];
 let beautyImages = [];
 let specialImages = [];
-let currentFolder = '';
 let activeBgLayer = 'A'; // 双缓冲切换
+
+// 页脚状态图标：眼睛（可见）/ 闭眼（隐藏）
+const ICON_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const ICON_EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.7 5.1A10.9 10.9 0 0 1 12 5c7 0 10 7 10 7a13.2 13.2 0 0 1-2.2 3.1"/><path d="M6.6 6.6A13.2 13.2 0 0 0 2 12s3 7 10 7a10.9 10.9 0 0 0 4.3-.9"/><path d="m2 2 20 20"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
 
 // 背景图层引用
 const bgLayerA = document.getElementById('bgLayerA');
@@ -673,12 +688,17 @@ const imgLoader = document.getElementById('imgLoader');
 
 // 加载一言数据
 async function loadHitokotoData() {
+  // 内置备用列表：当 data/hitokoto.txt 不可达（预览面板/file:///部署缺文件）时使用，
+  // 避免把 404 错误页正文当成文案显示（如 'not found'）。
+  const FALLBACK = /*__HITOKOTO_FALLBACK_START__*/["陪你看日落的人比日落浪漫。", "专注并不会让你疲劳，反而是一种放松。唯有杂念丛生，才会日日疲惫.", "顶级自目律从不靠任何意志力，而是来自平静如水的野心。", "真正喜欢的人和事都值得我们去坚持。", "夏日是调整心情的最好季节，特别是黄昏与晚风。", "保持心脏震荡，有人等你共鸣。", "身处泥泞遥，看满山花开。", "表白只是为了表达心意，而不是确立关系。", "不辜负对的人，不辜负自己。", "给时间时间，让过去过去，让开始开始。", "所有事情只要你觉得值得就好。", "不要总沉迷过去，你要有新的生活。", "心情不好就去超市听听好消息。", "我想，慢慢来是一种诚意。", "喜欢简单的事 快乐的人 明媚的夏天和阳光的你", "说到做到，真的既踏实又浪漫。", "经过了兜兜转转的重逢是场浪漫。", "我频繁地记录着，因为生活很值得。", "小众的爱好不用在意大众的眼光。", "风停在窗边嘱咐你要热爱这个世界。", "按照大自然的规律，你该遇到我了。", "我的有趣程度完全取决于身边的人。", "不发动态就是在认真生活。", "做你自己，爱你的人自然爱你。", "今天温柔的风归功于昨天的雨。", "如果不喜欢这朵花，就请它继续被别人热爱吧。", "简单的喜欢最长远，懂你的人最温柔。", "如果志同道合，我希望我们旗鼓相当。", "人在最无助的时候，看什么都像救赎。", "爱别人要适可而止，爱自己要尽心尽力。", "要珍重的事物很多，你在其中名列前茅。", "世界充满分歧所以要学会尊重别人。", "不能因为没有掌声就丢掉自信。", "认清了生活的真相，然后更加热爱自己。", "我们各自努力，然后最高处见。", "路还长，温柔的事一定会发生。", "温柔是黑暗世界里永恒的光。", "天空黑暗到一定程度，星辰就会熠熠生辉。", "过好自律的生活，美好才会在路上不期而遇。", "你未必光芒万丈，但始终温暖有光。", "要懂得珍惜，不要丢掉白天的太阳，又错过夜晚的星星。", "生活就是自己哄自己，把自己劝明白，什么都解决了。", "慢慢走，沿途有风景，背后有阳光。", "记得跌倒的路，不忘扶你的人。", "接受自己的普通，然后全力以赴的出众。", "疲倦的生活，总要有些温柔的梦想。", "生活有望穿秋水的等待，也会有意想不到的惊喜。", "生活明朗，万物可爱。", "俗事难料，舒眉一笑。", "长夜将尽，来日可期。", "生活需要长远的清醒。", "未尝君苦，不劝大度。", "悄悄伸出手，和风击掌。", "要天上星，不要世间苦。", "人间烟火气最抚凡人心。", "你要做自己，你要开心。", "陌上花开，可缓缓归矣。", "别担心，一切都会好的。", "日子需要我们积极向上。", "这个春天会有新的遇见。", "认真做个快乐的普通人。", "永远沉溺于温柔和让步。", "当乌云散去自有漫天繁星。", "有趣有爱，不负心中热爱。", "把普通的日子过得浪漫点。", "向上且阳光，活泼且有趣。", "风月都好看，人间也浪漫。", "我们各自努力我偷空爱你。", "日落归山海，山海藏深意。", "一生都得酷，没人为你哭。", "一笑千场醉，浮生任白头。", "人间蹉跎，你是唯一值得。", "人生何其短，笑要格外甜。", "你是生活扑面而来的善意。", "愿你永怀善意，清澈明朗。", "世界很烦，但你要很可爱。", "喜乐有分享，共度日月长。", "奔赴要值得，放弃要利落。", "这世间荒芜，但浪漫不死。", "那就在一起，黄昏与四季。", "你尽管善良，上天自会衡量。", "忙碌足以冲淡许多复杂情绪。", "热爱，是所有的理由和答案。", "独行的人总会遇到有趣的人。", "花即使不被欣赏依然会开花。", "所有的温柔都是懂事换来的。", "揣着一口袋的开心满载而归。", "你很自由，充满了无限可能。", "人的内心不种鲜花就长杂草。", "清晨和夜晚都请用力去生活。", "面对热爱要不遗余力地喜欢。", "一起失眠是人类极致的浪漫。", "把难过和不安抛到星星彼端。", "我的有趣藏在无趣的日子里。", "我盼望万里山河，也盼望你。", "没有期待的日子反而顺顺利利。", "天气突然变凉，故事也该翻篇。", "不用着急地去回应所有的声音。", "学着给自己买花，陪自己长大。", "生活温暖顺心，其它别无他求。", "喜欢做的事是没有截止日期的。", "他是奔跑在人间的另一个月亮。", "希望我有特别的地方令你着迷。", "难过这个东西难是难终究会过。", "山林不向四季起誓，荣枯随缘。", "想牵你的手，敬各方来宾的酒。", "生活不在别处，当下即是全部。", "路上见识世界，途中认清自己。", "不图事事圆满，但愿事事甘心。", "该相见的人总有一天会相见的。", "所见皆为美好，所行不负年少。", "小朋友是要随时被放进怀里的。", "路过山水万程祝自己与温柔重逢。", "心怀浪漫宇宙，也珍惜人间日常。", "努力到一定程度幸运会不期而至。", "夏天的海边有冰淇淋口味的海风。", "那就祝你有数不尽的鲜花的浪漫。", "一切都会好的，城南的花都开了。", "关于明天的事后天我们就知道了。", "见过花开的人便会懂得风的温柔。", "没有动态的时候，都在好好生活。", "兜兜转转的重逢才是浪漫的开始。", "生活再苟且也要把自己收拾干净。", "看过花开的人便会懂得风的温柔。", "放弃对所有人的期待才是安稳的。", "不乖乖睡觉的孩子会到月球罚站。", "温柔是宝藏，你也是", "岁月易逝，一滴不剩", "人间有味，是清欢", "慢慢星河，温暖人间", "万事顺遂，毫无蹉跎", "淡眼醉意，山河皆你", "温柔轻盈，缓慢坚定", "知命不惧，日日自新", "各自努力，顶峰相见", "关于生活开心就好", "没关系不妨大胆点", "记住这一瞬间就好啦", "波澜不惊的日复一日", "祝你是你 生活无所谓意义", "你终会遇到和你同频共振的人", "无所谓 我接受我的糟糕", "不敢大胆 生活全是观众", "人和人之间有过一些时刻就够了", "能让我狂奔的除了大雨也仅有你了", "学着自洽 和自己握手言和", "在这个混浊的世界做自己", "拍下幸福的瞬间这样我也站在幸福里", "人生由我 自在独行 否极泰来", "时间有限，来不及惦记心里没我的人", "打开生活的天窗，阳光自然会照进来", "不吃大饼，不听故事，不收破烂", "愿生活不太拥挤，愿笑容不必刻意", "请不要为任何没有实现的承诺提前开心", "用积攒的小美好抵御生活中的大烦恼", "人生如茶须慢品，岁月似歌要静听", "人生最好的状态：安于得失，淡于成败", "行走在岁月的光影里，抛去种不下的种子，让风也开花", "把节奏放慢，听歌，一个人", "让时光搁浅一会儿，听风声，看日落", "听风声，看日落", "日子一般般，快乐很简单", "听花开的声音，眉间落欢喜", "幸与不幸都有尽头", "并肩而立，一起成为更好的大人", "希望你活的尽兴而不是庆幸", "我们都各自发光，别吹灭别人的光", "总有一场相遇是互相喜欢的", "落日余晖的路上总是爱意弥漫", "搜刮生活藏下的所有温柔", "露出点马脚吧 让我感觉你也在想我", "祝你越来越好，趟过难关便成长", "世间万物都在治愈你，只有你不肯放过自己", "热爱不会过期 志趣相投的人总会相遇", "月亮慢慢变圆 事事慢慢如愿", "那不是笑话 是我青春篇章里最勇敢又失败的一页", "春日不迟 相逢会有时", "总要热爱点什么不能被这无趣的生活吞没", "那就 看海 拥抱 说晚安", "得一玫瑰 弃漫山野花", "永远太久只求朝夕", "入了心的人 见与不见都思念", "及时止损缘尽则散", "分享欲是我最真诚的告白", "自在摇曳 生生不息", "永远年轻 永远想一出是一出", "活在缘分里 而非关系里", "追风赶月莫停留，平芜尽处是春山", "怀念是惩罚那些容易念旧的人", "时间怎么会等人呢 等你的是我", "别定义我，我颠覆想象", "花即使不被欣赏依然会长大", "请成为永远浪漫永远清澈的存在过往不究，勿扰", "都是风景，幸会", "因为喜欢，可迎万难", "快乐的事，正在排队呢", "理想状态是有节制的热爱", "分享欲是我赤裸裸的告白", "烟火向星辰，所愿皆成真", "海口的风是温柔的，你也是", "态度本身也是答案的一部分", "想要成为你众所周知的欢喜", "温柔的人，简直是人间宝藏", "允许存在误解、接纳和不喜欢", "山风停止了呼吸，爱意盛在星河", "频繁分享日常是最温柔的问候", "把自己流放到世界的某个角落里", "那天我们聊到很晚 手机热的像心", "永远喜欢双方都充满期待的见面", "请保持网络畅通，及时接收我的思念", "不亏待每一份热情，不讨好任何冷漠", "成为自己的英雄，不惧离别不怕孤独", "和喜欢的人说话，声音真的会变温柔", "回头是为了再继续爱你，希望你走向我", "想变得有趣，变得特别，变成你眼里的一点星光", "希望我们顺理成章的遇见，然后各自懂得如何去爱", "希望你活得热气腾腾。喜欢的事都如愿以偿，欢乐地度过人生的每一个时刻", "小小世界，开心至上。", "因为喜欢，可迎万难。", "余生漫漫，爱有归期。", "走着走着，花就开了。", "你乐意的话，做千千万。", "平行时空下过好自己的生活。", "人的内心不种鲜花就长杂草。", "人间不值得，可我值得呀。", "入目无他人，四海皆是你。", "未曾谋面，也终将会相遇。", "烟火向星辰，所愿皆成真。", "永远善良，永远来日方长。", "在自己喜欢的状态里生活。", "种自己的花，爱自己的宇宙。", "做快乐的事，爱快乐的人。", "遇见你，对我而言就是上上签。", "或许会焦虑，或许会不知所措。", "今天的天空像一封橘色的情书。", "忙碌，足以冲淡许多复杂感情。", "你是我的当务之急，永远都是。", "情书是我抄的，但爱你是真的。", "我不擅长恋爱，但我天生爱你。", "我只活一次，所以我只要快乐。", "这世界乱糟糟，而我可可爱爱。", "自从爱你以后，才知爱的甜美。", "无法阻止自己落俗，但浪漫不死。", "心里藏着小星星，生活才能亮晶晶。", "心有万千浪漫，沉溺于世俗人海。", "永远喜欢自己，包括糟糕的自己。", "这世间欠你的一切温柔，我来还。", "熬过去就会发现，其实真的没什么。", "出现在别人的生活里要像一份礼物。", "错过了落日余晖，还会有满天星辰。", "父母平安健康，其余都是锦上添花。", "怪风太温柔，像老朋友，像旧时候。", "过树穿花踏遍山河，终要与你相遇。", "决定了就去做，主动一些才会快乐。", "如果事与愿违那一定是有另外的安排。", "我喜欢安于现状，也喜欢未来可期。", "想把你藏进梦里，天亮也带不走你。", "想借你心头的月亮，盛进一片浪漫。", "不必张扬，是花自然香，是爱自然长。", "春来夏往，秋收冬藏，我们来日方长。", "大概等一个人，比爱一个人更有意义。", "回到那年夏日，对过往说声好久不见。", "你未必是光芒万丈，但始终温暖有光。", "如果你感到辛苦，就来我怀里躲躲吧。", "善意可以给任何人，但喜欢和爱不行。", "生活是自己的，尽情装扮，尽情可爱。", "世事千帆过，前方终会是温柔和月光。", "愿这一年，日子很滚烫，快乐又明亮。", "走过的路别回头，相爱的人会再相逢。", "不得不承认，时间真的改变了很多东西。", "不经意间闯入生活的人总能惊艳了岁月。", "独自走过莽莽苍苍，与你同行才有了光。", "努力去听风的声音，不必在意风的方向。", "日落太短了，我只想奔赴属于我的远方。", "山前山后各有哀愁，有风无风都不自由。", "生活本来就是一半拥有，一半选择放弃。", "世界这么大，有人对你好，是你的骄傲。", "不啻微芒，造炬成阳。", "云程发轫，培风图南。", "韬光逐薮，含章未曜。", "辉光所烛，万里同晷。", "和光同尘，与时舒卷。", "星霜荏苒，居诸不息。", "凛冬散尽，星河长明。", "韶华向远，浮生未歇。", "行而不辍，未来可期。", "心存希冀，目有繁星。", "追光而遇，沐光而行。", "苍山负雪，明烛天南。", "浮舟沧海，立马昆仑。", "朝乾夕惕，功不唐捐。", "星火燎原，涓滴成海。", "静水流深，沧笙踏歌。", "初心如磐，奋楫笃行。", "拨云见日，云开月明。", "步履不停，未来已来。", "山止川行，风禾尽起。", "心向朝阳，无畏悲伤。", "时光知味，岁月沉香。", "浮光跃金，静影沉璧。", "步月登云，扶摇直上。", "暗室逢灯，绝渡逢舟。", "朝华夕秀，岁聿云暮。", "风禾尽起，盈车嘉穗。", "松筠之节，经霜弥茂。", "鹤鸣九皋，声闻于天。", "星奔川骛，与时偕行。", "心若鸿鹄，志在苍穹。", "春山可望，岁月可为。", "一苇以航，通彼远方。", "云山苍苍，江水泱泱。", "积极碰撞世界，成败皆为反馈。", "菩萨心肠，金刚手段。", "恐惧是生物的本能，勇气是人类的赞歌。", "内心充盈者，独行也如众。", "悲索之人烈焰加身，堕落者不可饶恕，永恒燃烧的羽翼，带我脱离凡间的沉沦。", "证道己身，躬身入局。", "小康，循此苦旅，携众，以达繁星！", "有目的地的人生才会迷路，我只是来世界散步。", "人的心脏都在左边，我们要如何拥抱才能心心相印？所以，能托付背后，才是心心相印。", "熬夜是今天没过够，向明天要时间。", "个人罢了工，才成了人。", "怀念过去的，是不是在时间的长河里刻舟求剑。", "向禁欲的寺庙求姻缘，向不出门的方丈问人生。", "根据吃啥补啥的理论，吃苦不能成为人上人。", "世界是个大象，我们都在盲人摸象，抽象是对世界的鞭挞。", "苦难是生命的防沉迷系统。", "很多人看不到未来，其实是看到了未来。", "山是地质时代最缓慢的浪。", "于暴雨中行走，伞是倒划天空的船。", "一觉醒来看到有人给你发一堆消息的感觉真好，就像有个人一直在惦记着你一样。", "强者从不抱怨环境，因为环境就是他们弄差的。", "能力越大，捅的篓子越大。", "谈一场错误的恋爱就像尿床，暖一时，凉一被子。", "形而上学，不行退学。", "色吗？我只知道花开的正艳，我不去欣赏，倒显得我不解风情了。", "智者不入爱河，王八不吃秤砣，傻逼重蹈覆辙，牛马点缀生活，卡里大把余额，建设美丽祖国！", "愿与时光落落为安，只记欢喜不记忧。", "食一碗人间烟火，饮几杯人生起落。", "无地者为流，无房者为氓。", "漫天星光沿途散播，长路尽处有灯火。", "一愿山河无恙，河清海晏。二愿众生皆苦，自我而终。三愿诸君生羽翼，展翅化鲲鹏！", "等夕阳掉进了海里，我就背上你，去寻摸一池的星星。", "天真永不消逝，浪漫至死不渝，优雅永不过时，温柔坚贞不屈，落俗不可避免。", "半窗疏影，一梦千年，琴歌萧萧笛声怜。", "希望你有问题第一时间是思考，然后是在群公告群文件或者百度寻找答案，而不是张口就问。", "良辰美景奈何天，赏心乐事听勾栏。", "从小到大学到的一个教训就是，不要指望通过一件事来获得幸福，比如高考、工作、婚姻等等。都只是一个分支，一个选择。能让你幸福的只有你的人生态度。", "人一旦活成别人口中的样子，他就变成了囚。", "真正男人，直面风险，绝不退缩，一笑而过。", "花半秒钟就看透事物本质的人，和花一辈子都看不清的人，注定是截然不同的命运。", "以我二十几年当儿子的经验，儿子这东西没经验养不好，容易反噬，养好了也不容易用好，属于高风险低收益。", "知命不惧，日日自新。", "不可名状，不可窥视。", "汝甚可爱，以拳击之，定泣良久，吾以以谗言媚之，汝复笑。", "自我感动式付出，既危险又愚蠢。", "空有人间自由身，却非人间自由人。", "自此鲜花赠自己，纵马踏花向自由。", "心里种花，人生才不会荒芜。", "天顺其然，地顺其性，一切都是刚刚好。", "最好的药物是忙碌，最好的治愈是读书。", "装过逼，吹过水，火车道上压过腿。", "以前车马很慢，书信很远，一生只够爱一人。现在地铁很快，我一站就看上十多个。", "枯藤老树昏鸦，空调Wifi西瓜，葛优同款沙发，夕阳西下，我就往上一趴。", "精神病人思维广，智障儿童欢乐多。", "别太累了，这个家不止你一个人在努力，还有我。", "百年后朕回来了，后宫却无一人。", "强者谈坚持，弱者才喜欢。", "每一次变革来临，总有三类人：一类人创造变化，一类人适应变化，一类人等着被弯道超车。", "我有一壶酒，足以慰风尘。", "人类面前有两条路，一条向外，通往星辰大海；一条对内，通往虚拟现实。", "没有找到理想的伴侣很正常，毕竟我也没有成为理想中的自己。", "头好痒，感觉要长脑子了。", "一半烟火以谋生，一半诗意以谋爱。", "天若有情天亦老，人间正道是沧桑。", "醉里挑灯看剑，梦里花海如潮。", "人间烟火气，最抚凡人心。", "星空不问赶路人，岁月不负有心人。", "二两桃花酿作酒，万杯不及你温柔。", "本是青灯不归客，却因浊酒恋红尘。", "三里清风三里路，步步清风再无你。", "有茶有酒多兄弟，患难何曾见一人。", "万丈悬崖终有底，唯有人心不可测。", "一生负气成今日，四海无人对夕阳。", "一世浮生一刹那，一程山水一年华。", "大鹏一日同风起，扶摇直上九万里。", "缘来缘去终会散，花开花败踪归程。", "半生风雨半生寒，一杯浊酒敬流年。", "我见青山多妩媚，青山见我应如是。", "从此烟雨落金城，一人撑伞两人行。", "三生清风三里路，步步春风再无你。", "无人与我立黄昏，无人问我粥可温。", "我与春风皆过客，你携秋水揽星河。", "既许一人以偏爱，愿尽余生之慷慨。", "半身风雨半身伤，半句别恨半句凉。", "从此音尘各悄然，春风如带草如烟。", "留七分正经以度生，留三分沙雕以防死。", "真正的英雄，是在看清生活后仍然热爱生活。", "你与星河皆可收藏。", "直觉只是条件反射与经验主义而已，理性才是人类真正的瑰宝。", "从此唯行乐，闲愁奈我何。", "长夜将尽，来日可期。", "四季花常在，九州事尽知。", "生活充满阳光和希望，小麦和玫瑰永不衰亡。", "想握住此生辽阔，赠你满天星火。", "热爱可抵岁月漫长，温柔可挡艰难时光。", "不去羡慕别人的生活，也不将就自己的人生。", "愿你相对辛苦，但绝对优秀。", "万物负阴而抱阳，冲气以为和。知其雄，守其雌，居善地，心善渊，与善仁。", "人心存污，常忧思而多苦，固怒而生怨，尽可为不可为之事，唯不作恶三字，乃天下大善，可济世镇魂，无他耳。", "遇事不要急，吃口药，问题不大。", "爱所有人，信任少数人，不负任何人。", "生于尘埃，溺于人海，死于理想高台。", "祝你此生，梦想光芒，野蛮生长，永不彷徨。", "烟火向星辰，所愿皆成真。", "出淤泥而不染，玩游戏而不坑。", "滔滔不绝很容易，可我只想和你在一个慢下来的世界里交谈。", "你是我难以预料的惊喜，也是我来日方长的温柔。", "而我只看向你眼底，千万人欢呼什么我不关心。", "如果向花礼拜，能和你相遇在这个春天里吗？", "我总觉得手上的糖，肯定不如你嘴里的甜。", "也许我词不达意，但我很开心遇见你。", "我会一直陪着你，不是我想，是我会。", "有些心动从一开始就覆水难收。"]/*__HITOKOTO_FALLBACK_END__*/;
   try {
     const res = await fetch('data/hitokoto.txt');
+    if (!res.ok) throw new Error('hitokoto status ' + res.status);
     const text = await res.text();
-    hitokotoList = text.split('\n').map(s => s.trim()).filter(Boolean);
+    const list = text.split('\n').map(s => s.trim()).filter(Boolean);
+    hitokotoList = list.length ? list : FALLBACK;
   } catch (e) {
-    hitokotoList = ['生活不止眼前的苟且，还有诗和远方。'];
+    hitokotoList = FALLBACK;
   }
 }
 
@@ -744,10 +764,8 @@ async function switchMode(mode) {
 
   const wallpaperView = document.getElementById('wallpaperView');
   const emptyEl = document.getElementById('wallpaperEmpty');
-  const contentEl = document.getElementById('wallpaperContent');
 
   wallpaperView.classList.add('show');
-  currentFolder = mode;
 
   let images;
   if (mode === 'anime') images = animeImages;
@@ -763,11 +781,9 @@ async function switchMode(mode) {
 
   if (images.length > 0) {
     emptyEl.style.display = 'none';
-    contentEl.style.display = 'flex';
     showRandomWallpaper(images);
   } else {
     emptyEl.style.display = 'block';
-    contentEl.style.display = 'none';
     clearBackground();
   }
 }
@@ -916,14 +932,16 @@ function closeModal() {
 function toggleCleanMode() {
   document.body.classList.toggle('clean-mode');
   const isClean = document.body.classList.contains('clean-mode');
-  document.getElementById('toggleHide').textContent = isClean ? '显示界面' : '纯净模式';
+  document.getElementById('labelClean').textContent = isClean ? '显示界面' : '纯净模式';
+  document.getElementById('iconClean').innerHTML = isClean ? ICON_EYE_OFF : ICON_EYE;
 }
 
 // 隐藏/显示分类按钮（随机动漫 / 随机美女 / 特殊壁纸）
 function toggleCategoryButtons() {
   document.body.classList.toggle('hide-category');
   const hidden = document.body.classList.contains('hide-category');
-  document.getElementById('toggleButtons').textContent = hidden ? '显示按钮' : '隐藏按钮';
+  document.getElementById('labelButtons').textContent = hidden ? '显示按钮' : '隐藏按钮';
+  document.getElementById('iconButtons').innerHTML = hidden ? ICON_EYE_OFF : ICON_EYE;
 }
 
 // 时间样式配置（视觉风格主题：字体/字号/配色/排版均不同）
@@ -931,7 +949,7 @@ const clockStyles = [
   {
     id: 'classic', name: '经典',
     font: "'Rajdhani', 'Noto Sans SC', sans-serif", weight: '500',
-    timeSize: '4.4rem', tracking: '0.12em', layout: 'below',
+    timeSize: '4.4rem', tracking: '0.12em',
     color: 'rgba(255,255,255,0.92)', glow: '0 0 40px rgba(255,255,255,0.08), 0 2px 12px rgba(0,0,0,0.5)',
     dateColor: 'rgba(255,255,255,0.45)',
     hour12: false, seconds: true, date: true, lunar: true, lang: 'zh'
@@ -939,7 +957,7 @@ const clockStyles = [
   {
     id: 'digital', name: '数码',
     font: "'Courier New', 'SFMono-Regular', Consolas, monospace", weight: '400',
-    timeSize: '4.2rem', tracking: '0.06em', layout: 'below',
+    timeSize: '4.2rem', tracking: '0.06em',
     color: '#74f5a8', glow: '0 0 10px rgba(116,245,168,0.55), 0 0 28px rgba(116,245,168,0.22)',
     dateColor: 'rgba(116,245,168,0.6)',
     hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
@@ -947,7 +965,7 @@ const clockStyles = [
   {
     id: 'english', name: '英文',
     font: "'Rajdhani', sans-serif", weight: '500',
-    timeSize: '3.8rem', tracking: '0.1em', layout: 'below',
+    timeSize: '3.8rem', tracking: '0.1em',
     color: 'rgba(255,255,255,0.92)', glow: '0 2px 12px rgba(0,0,0,0.5)',
     dateColor: 'rgba(255,255,255,0.45)',
     hour12: true, seconds: false, date: true, lunar: true, lang: 'en'
@@ -956,7 +974,7 @@ const clockStyles = [
   {
     id: 'neon', name: '霓虹',
     font: "'Orbitron', 'Rajdhani', sans-serif", weight: '700',
-    timeSize: '4rem', tracking: '0.05em', layout: 'below',
+    timeSize: '4rem', tracking: '0.05em',
     color: '#ff5fd2', glow: '0 0 8px rgba(255,95,210,0.9), 0 0 24px rgba(255,95,210,0.55), 0 0 46px rgba(120,80,255,0.5)',
     dateColor: 'rgba(125,205,255,0.9)',
     hour12: false, seconds: true, date: true, lunar: false, lang: 'en'
@@ -964,7 +982,7 @@ const clockStyles = [
   {
     id: 'retro', name: '复古',
     font: "'Courier New', 'SFMono-Regular', Consolas, monospace", weight: '700',
-    timeSize: '4rem', tracking: '0.08em', layout: 'below',
+    timeSize: '4rem', tracking: '0.08em',
     color: '#ffb347', glow: '0 0 6px rgba(255,179,71,0.8), 0 0 18px rgba(255,140,0,0.45)',
     dateColor: 'rgba(255,179,71,0.75)',
     bg: 'rgba(28,16,2,0.45)', radius: '10px', pad: '0.02em 0.4em',
@@ -973,51 +991,15 @@ const clockStyles = [
   {
     id: 'serif', name: '衬线',
     font: "'Noto Serif SC', 'Songti SC', 'SimSun', serif", weight: '600',
-    timeSize: '4.6rem', tracking: '0.04em', layout: 'below',
+    timeSize: '4.6rem', tracking: '0.04em',
     color: '#f5efe0', glow: '0 1px 3px rgba(0,0,0,0.4)',
     dateColor: 'rgba(245,239,224,0.62)',
     hour12: false, seconds: false, date: true, lunar: true, lang: 'zh'
   },
   {
-    id: 'pixel', name: '像素',
-    font: "'Press Start 2P', 'Courier New', monospace", weight: '400',
-    timeSize: '2.2rem', tracking: '0.02em', layout: 'below',
-    color: '#9bff7a', glow: '0 0 6px rgba(155,255,122,0.6)',
-    dateColor: 'rgba(155,255,122,0.7)',
-    bg: 'rgba(8,18,8,0.55)', radius: '6px',
-    hour12: false, seconds: true, date: false, lunar: false, lang: 'zh'
-  },
-  {
-    id: 'poster', name: '海报',
-    font: "'Oswald', 'Arial Narrow', 'Microsoft YaHei', sans-serif", weight: '700',
-    timeSize: '6rem', tracking: '0.02em', layout: 'below',
-    color: '#ffffff', glow: '0 3px 0 rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.4)',
-    dateColor: 'rgba(255,255,255,0.72)',
-    hour12: false, seconds: false, date: true, lunar: false, lang: 'zh'
-  },
-  // —— 二次新增视觉风格 ——
-  {
-    id: 'gradient', name: '渐变',
-    font: "'Rajdhani', sans-serif", weight: '600',
-    timeSize: '4.4rem', tracking: '0.1em', layout: 'below',
-    gradient: 'linear-gradient(90deg,#ff9a9e,#fad0c4,#a18cd1,#fbc2eb)',
-    glow: '0 2px 12px rgba(0,0,0,0.4)',
-    dateColor: 'rgba(255,255,255,0.6)',
-    hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
-  },
-  {
-    id: 'gold', name: '金',
-    font: "'Rajdhani', sans-serif", weight: '700',
-    timeSize: '4.4rem', tracking: '0.1em', layout: 'below',
-    gradient: 'linear-gradient(180deg,#fff3b0,#ffd700,#b8860b)',
-    glow: '0 0 14px rgba(255,215,0,0.45)',
-    dateColor: 'rgba(255,215,0,0.7)',
-    hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
-  },
-  {
     id: 'hand', name: '手写',
     font: "'Ma Shan Zheng', 'KaiTi', cursive", weight: '400',
-    timeSize: '4.2rem', tracking: '0.06em', layout: 'below',
+    timeSize: '4.2rem', tracking: '0.06em',
     color: '#fff7e6', glow: '0 2px 8px rgba(0,0,0,0.5)',
     dateColor: 'rgba(255,247,230,0.65)',
     hour12: false, seconds: false, date: true, lunar: true, lang: 'zh'
@@ -1025,39 +1007,32 @@ const clockStyles = [
   {
     id: 'blue', name: '蓝调',
     font: "'Orbitron', sans-serif", weight: '600',
-    timeSize: '4rem', tracking: '0.05em', layout: 'below',
+    timeSize: '4rem', tracking: '0.05em',
     color: '#5cc8ff', glow: '0 0 8px rgba(92,200,255,0.7), 0 0 24px rgba(40,120,255,0.45)',
     dateColor: 'rgba(150,210,255,0.85)',
     hour12: false, seconds: true, date: true, lunar: false, lang: 'en'
   },
-  // —— 三次新增视觉风格 ——
-  {
-    id: 'flip', name: '翻页',
-    font: "'Courier New', 'SFMono-Regular', Consolas, monospace", weight: '700',
-    timeSize: '3.8rem', tracking: '0.04em', layout: 'below',
-    color: '#f5f5f5', glow: '0 2px 6px rgba(0,0,0,0.6)',
-    dateColor: 'rgba(255,255,255,0.55)',
-    bg: 'linear-gradient(180deg,#2c2c2c 0%,#2c2c2c 49.2%,#050505 50%,#1b1b1b 50.8%,#1b1b1b 100%)',
-    radius: '12px', pad: '0.2em 0.55em',
-    hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
-  },
-  {
-    id: 'stroke', name: '描边',
-    font: "'Rajdhani', sans-serif", weight: '700',
-    timeSize: '4.6rem', tracking: '0.08em', layout: 'below',
-    color: '#ffffff', glow: '0 2px 10px rgba(0,0,0,0.4)',
-    stroke: '2px rgba(0,0,0,0.6)',
-    dateColor: 'rgba(255,255,255,0.7)',
-    hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
-  },
   {
     id: 'cyber', name: '赛博',
     font: "'Orbitron', sans-serif", weight: '700',
-    timeSize: '4rem', tracking: '0.05em', layout: 'below',
+    timeSize: '4rem', tracking: '0.05em',
     gradient: 'linear-gradient(90deg,#00eaff,#b6ff00)',
     glow: '0 0 10px rgba(0,234,255,0.6), 0 0 26px rgba(182,255,0,0.4)',
     dateColor: 'rgba(150,255,230,0.85)',
     hour12: false, seconds: true, date: true, lunar: false, lang: 'en'
+  },
+  {
+    id: 'frosted', name: '磨砂',
+    font: "'Rajdhani', 'Orbitron', sans-serif", weight: '700',
+    timeSize: '4rem', tracking: '0.08em',
+    color: 'rgba(255,255,255,0.98)', glow: '0 2px 8px rgba(0,0,0,0.25)',
+    dateColor: 'rgba(255,255,255,0.72)',
+    bg: 'linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.06))',
+    backdrop: 'blur(18px) saturate(165%)',
+    radius: '14px', pad: '0.14em 0.34em', lh: '1.12',
+    border: '1px solid rgba(255,255,255,0.4)',
+    shadow: '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.45)',
+    hour12: false, seconds: true, date: true, lunar: false, lang: 'zh'
   }
 ];
 
@@ -1112,7 +1087,6 @@ function updateClock() {
   const style = clockStyles[currentClockStyle];
 
   const clockEl = document.getElementById('clock');
-  clockEl.dataset.style = style.id;
   clockEl.style.fontFamily = style.font;
   clockEl.style.fontWeight = style.weight;
   clockEl.style.letterSpacing = style.tracking;
@@ -1143,13 +1117,17 @@ function updateClock() {
     timeStyle += `color:${style.color};`;
   }
   if (style.bg) timeStyle += `background:${style.bg};`;
+  const backdropVal = style.backdrop || (style.blur ? `blur(${style.blur})` : '');
+  if (backdropVal) timeStyle += `backdrop-filter:${backdropVal};-webkit-backdrop-filter:${backdropVal};`;
   if (style.radius) timeStyle += `border-radius:${style.radius};padding:${style.pad || '0.12em 0.4em'};`;
+  if (style.lh) timeStyle += `line-height:${style.lh};`;
+  if (style.border) timeStyle += `border:${style.border};`;
+  if (style.shadow) timeStyle += `box-shadow:${style.shadow};`;
   if (style.stroke) timeStyle += `-webkit-text-stroke:${style.stroke};`;
   const timeHtml = `<div class="clock-time" style="${timeStyle}">${fmtTime(h, min, s, style)}</div>`;
   const dateHtml = dateLine ? `<div class="clock-date" style="color:${style.dateColor};">${dateLine}</div>` : '';
 
-  // 支持「日期在上方」的排版（layout 为 'above' 时）
-  clockEl.innerHTML = style.layout === 'above' ? dateHtml + timeHtml : timeHtml + dateHtml;
+  clockEl.innerHTML = timeHtml + dateHtml;
 
   const pill = document.getElementById('clockStyleBtn');
   if (pill) pill.title = '切换时间样式（当前：' + style.name + '）';

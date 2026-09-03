@@ -3,3 +3,6 @@
 
 # WorkBuddy 本地工具元数据（不入库）
 .workbuddy/
+
+# 大文件压缩包（超过 GitHub 100MB 单文件上限，不入库）
+11.zip
