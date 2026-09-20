@@ -48,6 +48,39 @@
 
   .bg-layer.active { opacity: 1; }
 
+  /* 加载中：中性深色背景，避免空白闪烁，提示用户正在加载 */
+  .bg-layer.is-loading {
+    background: linear-gradient(135deg, #1f1f24, #2c2c33);
+  }
+
+  /* 顶部加载进度条：白色光条在浅色底层上扫过 */
+  .top-loader {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .25s ease;
+  }
+  .top-loader.show { opacity: 1; }
+  .top-loader::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    width: 30%;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(255,255,255,0.7);
+    animation: topLoaderMove 1s ease-in-out infinite;
+  }
+  @keyframes topLoaderMove {
+    0%   { left: -30%; }
+    100% { left: 100%; }
+  }
+
   /* 背景暗化遮罩 */
   .bg-overlay {
     position: fixed;
@@ -465,17 +498,6 @@
     transform: translateX(-50%) translateY(0);
   }
 
-  /* 隐藏的图片加载器 */
-  .img-loader {
-    position: fixed;
-    top: -9999px;
-    left: -9999px;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    pointer-events: none;
-  }
-
   /* 页脚 */
   .footer {
     position: fixed;
@@ -595,11 +617,12 @@
 var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?94cdbffd22e54b32a6d0ac30181b6c45";
+  hm.src = "https://hm.baidu.com/hm.js?45087e5995f55e388cca583d8e5dcce4";
   var s = document.getElementsByTagName("script")[0]; 
   s.parentNode.insertBefore(hm, s);
 })();
 </script>
+
 
 
 </head>
@@ -610,8 +633,8 @@ var _hmt = _hmt || [];
 <div class="bg-layer" id="bgLayerB"></div>
 <div class="bg-overlay"></div>
 
-<!-- 隐藏图片预加载 -->
-<img class="img-loader" id="imgLoader" alt="">
+<!-- 顶部加载进度条 -->
+<div class="top-loader" id="topLoader"></div>
 
 <main>
 <div class="container">
@@ -675,7 +698,41 @@ let hitokotoList = [];
 let animeImages = [];
 let beautyImages = [];
 let specialImages = [];
+
+// 预加载池：首屏绘制后，在后台把各分类图片载入 HTTP 缓存，使后续切换壁纸近乎瞬时。
+// 关键：延迟启动 + 限并发(约4张链式接力) + 低优先级，绝不抢占首屏那张可见壁纸的带宽。
+// 自适应：慢网/省流量模式不预热，避免把本就紧张的外网带宽浪费在后台预取上。
+const preloaded = { anime: false, beauty: false, special: false };
+function preloadImages(mode, list) {
+  if (preloaded[mode] || !list || !list.length) return;
+  // 慢网/省流量：直接跳过后台预热，首图优先
+  const conn = navigator.connection || navigator.webkitConnection || navigator.mozConnection;
+  if (conn) {
+    if (conn.saveData) return;
+    const et = conn.effectiveType || '';
+    if (et === 'slow-2g' || et === '2g') return;
+  }
+  preloaded[mode] = true;
+  let i = 0, active = 0;
+  let CONC = 4;
+  if (conn && (conn.effectiveType || '') === '3g') CONC = 2; // 3G 减半并发
+  const pump = () => {
+    while (active < CONC && i < list.length) {
+      active++;
+      const im = new Image();
+      im.decoding = 'async';
+      if ('fetchPriority' in im) im.fetchPriority = 'low';
+      else im.setAttribute('fetchpriority', 'low');
+      im.onload = im.onerror = () => { active--; pump(); };
+      im.src = list[i++];
+    }
+  };
+  // 等首屏壁纸绘制完再开始预热，避免饿死首图
+  if (window.requestIdleCallback) requestIdleCallback(pump);
+  else setTimeout(pump, 200);
+}
 let activeBgLayer = 'A'; // 双缓冲切换
+let bgToken = 0;        // 防止快速切换时旧原图覆盖新壁纸
 
 // 页脚状态图标：眼睛（可见）/ 闭眼（隐藏）
 const ICON_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -684,7 +741,6 @@ const ICON_EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 // 背景图层引用
 const bgLayerA = document.getElementById('bgLayerA');
 const bgLayerB = document.getElementById('bgLayerB');
-const imgLoader = document.getElementById('imgLoader');
 
 // 加载一言数据
 async function loadHitokotoData() {
@@ -730,22 +786,35 @@ async function scanFolder(folder) {
   }
 }
 
-// 设置全屏背景（带双缓冲淡入）
+// 顶部加载条控制
+function showTopLoader() { document.getElementById('topLoader').classList.add('show'); }
+function hideTopLoader() { document.getElementById('topLoader').classList.remove('show'); }
+
+// 设置全屏背景：显示加载状态（中性深色背景 + 顶部进度条），原图加载完成后替换
 function setBackgroundImage(url) {
   const nextLayer = activeBgLayer === 'A' ? bgLayerB : bgLayerA;
   const currLayer = activeBgLayer === 'A' ? bgLayerA : bgLayerB;
 
-  // 预加载图片
-  imgLoader.onload = () => {
+  // 1) 进入加载态：清除旧背景、上中性深色、显示顶部进度条
+  nextLayer.style.backgroundImage = '';
+  nextLayer.classList.add('is-loading');
+  nextLayer.classList.add('active');
+  currLayer.classList.remove('active');
+  activeBgLayer = activeBgLayer === 'A' ? 'B' : 'A';
+  showTopLoader();
+
+  // 2) 后台加载原图，完成后替换为图片并隐藏进度条
+  const token = ++bgToken;
+  const full = new Image();
+  full.decoding = 'async';
+  full.onload = () => {
+    if (token !== bgToken) return;
     nextLayer.style.backgroundImage = `url("${encodeURI(url)}")`;
-    nextLayer.classList.add('active');
-    currLayer.classList.remove('active');
-    activeBgLayer = activeBgLayer === 'A' ? 'B' : 'A';
+    nextLayer.classList.remove('is-loading');
+    hideTopLoader();
   };
-  imgLoader.onerror = () => {
-    // 加载失败时跳过
-  };
-  imgLoader.src = url;
+  full.onerror = () => { hideTopLoader(); };
+  full.src = url;
 }
 
 // 清除背景
@@ -781,11 +850,14 @@ async function switchMode(mode) {
 
   if (images.length > 0) {
     emptyEl.style.display = 'none';
-    showRandomWallpaper(images);
+    showRandomWallpaper(images);   // 先让首屏那张立刻加载/显示
   } else {
     emptyEl.style.display = 'block';
     clearBackground();
   }
+
+  // 首屏之后再后台预热整组：限并发 + 低优先级，不抢首图带宽
+  preloadImages(mode, images);
 }
 
 // 随机壁纸（全屏背景）
@@ -1219,6 +1291,13 @@ window.addEventListener('resize', updateClock);
   await switchMode('anime');
   showWallpaperQuote();
 })();
+
+// 注册 Service Worker：缓存静态资源与图片，二次访问/切图秒开（相对路径，兼容子目录部署）
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 
 </body>
